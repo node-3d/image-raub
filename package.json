@@ -1,0 +1,29 @@
+{
+  "name": "node-image-raub",
+  "author": "Luis Blanco <raubtierxxx@gmail.com>",
+  "description": "Native Image loader for Node.js",
+  "version": "0.0.1",
+  "main": "index.js",
+  "keywords": [
+    "image",
+    "node",
+    "freeimage",
+    "graphics"
+  ],
+  "maintainers": [
+    {
+      "name": "Luis Blanco",
+      "email": "raubtierxxx@gmail.com",
+      "skype": "rauber666"
+    }
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/raub/node-image.git"
+  },
+  "dependencies": {
+    "nan": "2.8.0",
+    "node-addon-tools-raub" : "0.0.6"
+  }
+}
