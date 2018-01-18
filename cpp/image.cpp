@@ -33,27 +33,24 @@ static void unregisterImage(Image* obj) {
 }
 
 
-Persistent<Function> Image::constructor_template;
+Nan::Persistent<v8::Function> Image::_constructor;
 
 
 void Image::init(Handle<Object> target) { NAN_HS;
 	
-	// constructor
-	Local<FunctionTemplate> ctor = Nan::New<FunctionTemplate>(New);
+	Local<FunctionTemplate> ctor = Nan::New<FunctionTemplate>(newCtor);
+	
 	ctor->InstanceTemplate()->SetInternalFieldCount(1);
 	ctor->SetClassName(JS_STR("Image"));
 	
-	// prototype
-	Nan::SetPrototypeMethod(ctor, "save",save);// NODE_SET_PROTOTYPE_METHOD(ctor, "save", save);
+		// prototype
+	Nan::SetPrototypeMethod(ctor, "save", save);
+	
 	Local<ObjectTemplate> proto = ctor->PrototypeTemplate();
+	ACCESSOR_RW(proto, gravity);
 	
-	Nan::SetAccessor(proto,JS_STR("width"), WidthGetter);
-	Nan::SetAccessor(proto,JS_STR("height"), HeightGetter);
-	Nan::SetAccessor(proto,JS_STR("pitch"), PitchGetter);
-	Nan::SetAccessor(proto,JS_STR("src"), SrcGetter, SrcSetter);
-	Nan::Set(target, JS_STR("Image"), ctor->GetFunction());
-	
-	constructor_template.Reset(Isolate::GetCurrent(), ctor->GetFunction());
+	_constructor.Reset(Nan::GetFunction(ctor).ToLocalChecked());
+	Nan::Set(target, JS_STR("Image"), Nan::GetFunction(ctor).ToLocalChecked());
 	
 	FreeImage_Initialise(true);
 	

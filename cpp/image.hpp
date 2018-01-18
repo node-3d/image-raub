@@ -34,7 +34,7 @@ protected:
 	
 	
 private:
-	static v8::Persistent<v8::Function> constructor_template;
+	static Nan::Persistent<v8::Function> _constructor;
 	
 	FIBITMAP *image_bmp;
 	char *filename;
