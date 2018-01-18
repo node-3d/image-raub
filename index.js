@@ -1,3 +1,3 @@
 'use strict';
 
-module.exports = require('./binary/image');
+module.exports = require('./js/image');

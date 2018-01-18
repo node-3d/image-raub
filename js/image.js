@@ -1,28 +1,35 @@
 'use strict';
 
+const util = require('util');
 const EventEmitter = require('events');
 
-const gl = require('../binary/webgl');
-
-const { Image } = gl;
+const Image = require('../core');
 
 
-Object.defineProperty(Image.prototype, 'onload', {
-	set(callback) { 
-		this.on('load', callback);
-	},
-});
-
-// extend prototype
-function inherit(target, source) {
+class JsImage extends EventEmitter {
 	
-	for (let k in source.prototype){
-		target.prototype[k] = source.prototype[k];
+	constructor() {
+		
+		super();
+		
+		this.emit = this.emit.bind(this);
+		
+		this._image = new Image(this);
+		
+	}
+	
+	
+	get src() { return this._image.src; }
+	set src(v) { this._image.src = v; }
+	
+	
+	[util.inspect.custom]() { return this.toString(); }
+	
+	toString() {
+		return `Image { src: [${this.src}] }`
 	}
 	
 }
 
-inherit(Image, EventEmitter);
 
-
-module.exports = Image;
+module.exports = JsScene;
