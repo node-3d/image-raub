@@ -8,6 +8,10 @@ using namespace v8;
 using namespace node;
 using namespace std;
 
+#define USE_UINT32_ARG(I, VAR, DEF)                                          \
+	CHECK_LET_ARG(I, IsUint32(), "uint32");                             \
+	unsigned int VAR = IS_ARG_EMPTY(I) ? (DEF) : info[I]->Uint32Value();
+
 
 static vector<Image*> images;
 
@@ -32,7 +36,7 @@ static void unregisterImage(Image* obj) {
 Persistent<Function> Image::constructor_template;
 
 
-void Image::Initialize(Handle<Object> target) { NAN_HS;
+void Image::init(Handle<Object> target) { NAN_HS;
 	
 	// constructor
 	Local<FunctionTemplate> ctor = Nan::New<FunctionTemplate>(New);
@@ -251,7 +255,7 @@ Image::~Image() {
 }
 
 
-void Image::AtExit() {
+void Image::deinit() {
 	
 	#ifdef LOGGING
 	cout<<"Image AtExit()"<<endl;

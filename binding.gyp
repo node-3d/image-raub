@@ -1,6 +1,9 @@
 {
 	'variables': {
-		'lib_dir' : '<!(node -e "console.log(require(\'.\').lib)")',
+		'_del'              : '<!(node -e "console.log(require(\'node-addon-tools-raub\')._del)")',
+		'_rd'               : '<!(node -e "console.log(require(\'node-addon-tools-raub\')._rd)")',
+		'freeimage_include' : '<!(node -e "console.log(require(\'node-deps-freeimage-raub\').include)")',
+		'freeimage_bin'     : '<!(node -e "console.log(require(\'node-deps-freeimage-raub\').bin)")',
 	},
 	'targets': [
 		{
@@ -11,17 +14,18 @@
 			],
 			'include_dirs': [
 				'<!(node -e "require(\'nan\')")',
+				'<!(node -e "console.log(require(\'node-addon-tools-raub\').include)")',
+				'<(freeimage_include)',
 				'<(module_root_dir)/include',
-				'<!(node -e "require(\'node-addon-tools-raub\')")',
 			],
-			'library_dirs': [ '<(lib_dir)' ],
+			'library_dirs': [ '<(freeimage_bin)' ],
 			'conditions': [
 				[
 					'OS=="linux"',
 					{
 						'libraries': [
-							'-Wl,-rpath,<(lib_dir)',
-							'<(lib_dir)/libfreeimage.so',
+							'-Wl,-rpath,<(freeimage_bin)',
+							'<(freeimage_bin)/libfreeimage.so',
 						],
 					}
 				],
@@ -29,8 +33,8 @@
 					'OS=="mac"',
 					{
 						'libraries': [
-							'-Wl,-rpath,<(lib_dir)',
-							'<(lib_dir)/freeimage.dylib',
+							'-Wl,-rpath,<(freeimage_bin)',
+							'<(freeimage_bin)/freeimage.dylib',
 						],
 					}
 				],
@@ -70,7 +74,7 @@
 					[ 'OS=="linux"', { 'action': ['mkdir', '-p', 'binary'] } ],
 					[ 'OS=="mac"', { 'action': ['mkdir', '-p', 'binary'] } ],
 					[ 'OS=="win"', { 'action': [
-						'<(module_root_dir)/_rd "<(module_root_dir)/binary" && ' +
+						'<(_rd) "<(module_root_dir)/binary" && ' +
 						'md "<(module_root_dir)/binary"'
 					] } ],
 				],
@@ -124,8 +128,8 @@
 						'<(module_root_dir)/build/Release/image.node'
 					] } ],
 					[ 'OS=="win"', { 'action' : [
-						'<(module_root_dir)/_del "<(module_root_dir)/build/Release/image.*" && ' +
-						'<(module_root_dir)/_del "<(module_root_dir)/build/Release/obj/image/*.*"'
+						'<(_del) "<(module_root_dir)/build/Release/image.*" && ' +
+						'<(_del) "<(module_root_dir)/build/Release/obj/image/*.*"'
 					] } ],
 				],
 			}],

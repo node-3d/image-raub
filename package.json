@@ -23,7 +23,7 @@
     "url": "https://github.com/raub/node-image.git"
   },
   "dependencies": {
-    "nan": "2.8.0",
-    "node-addon-tools-raub" : "0.0.6"
+    "node-addon-tools-raub": "0.0.7",
+    "node-deps-freeimage-raub": "0.0.1"
   }
 }

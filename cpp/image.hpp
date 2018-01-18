@@ -1,18 +1,18 @@
 #ifndef _IMAGE_HPP_
 #define _IMAGE_HPP_
 
-// These two includes must be in such a specific order
-#include <nan.h>
-#include <FreeImage.h>
 
-#include "common.hpp"
+#include <addon-tools.hpp>
+
+#include <FreeImage.h>
 
 
 class Image : public node::ObjectWrap {
 	
 public:
-	static void Initialize (v8::Handle<v8::Object> target);
-	static void AtExit();
+	static void init(v8::Handle<v8::Object> target);
+	static void deinit();
+	
 	int GetWidth();
 	int GetHeight();
 	int GetPitch();
