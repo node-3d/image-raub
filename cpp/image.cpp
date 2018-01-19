@@ -8,8 +8,11 @@ using namespace v8;
 using namespace node;
 using namespace std;
 
-#define USE_UINT32_ARG(I, VAR, DEF)                                          \
-	CHECK_LET_ARG(I, IsUint32(), "uint32");                             \
+#define THIS_IMAGE                                                            \
+	Image *image = ObjectWrap::Unwrap<Image>(info.This());
+
+#define USE_UINT32_ARG(I, VAR, DEF)                                           \
+	CHECK_LET_ARG(I, IsUint32(), "uint32");                                   \
 	unsigned int VAR = IS_ARG_EMPTY(I) ? (DEF) : info[I]->Uint32Value();
 
 
@@ -36,7 +39,7 @@ static void unregisterImage(Image* obj) {
 Nan::Persistent<v8::Function> Image::_constructor;
 
 
-void Image::init(Handle<Object> target) { NAN_HS;
+NAN_MODULE_INIT(Image::init) {
 	
 	Local<FunctionTemplate> ctor = Nan::New<FunctionTemplate>(newCtor);
 	
@@ -57,111 +60,63 @@ void Image::init(Handle<Object> target) { NAN_HS;
 }
 
 
-int Image::GetWidth() {
-	return FreeImage_GetWidth(image_bmp);
-}
-
-
-int Image::GetHeight () {
-	return FreeImage_GetHeight(image_bmp);
-}
-
-
-int Image::GetPitch() {
-	return FreeImage_GetPitch(image_bmp);
-}
-
-
-void *Image::GetData() {
+void Image::_emit(int argc, Local<Value> argv[]) {
 	
-	BYTE *pixels = FreeImage_GetBits(image_bmp);
-	
-	// FreeImage stores data in BGR
-	// Convert from BGR to RGB
-	int sz=FreeImage_GetWidth(image_bmp) * FreeImage_GetHeight(image_bmp);
-	for(int i = 0; i < sz; i++)
-	{
-		int i4 = i << 2;
-		BYTE temp = pixels[i4 + 0];
-		pixels[i4 + 0] = pixels[i4 + 2];
-		pixels[i4 + 2] = temp;
+	if ( ! Nan::New(_emitter)->Has(JS_STR("emit")) ) {
+		return;
 	}
 	
-	return pixels;
+	Nan::Callback callback(Nan::New(_emitter)->Get(JS_STR("emit")).As<Function>());
+	
+	if ( ! callback.IsEmpty() ) {
+		callback.Call(argc, argv);
+	}
 	
 }
 
 
-void Image::Load(const char *filename) {
+NAN_METHOD(Image::newCtor) {
 	
-	this->filename = (char *)filename;
+	CTOR_CHECK("Image");
 	
-	FREE_IMAGE_FORMAT format = FreeImage_GetFileType(filename, 0);
-	FIBITMAP *tmp = FreeImage_Load(format, filename, 0);
-	image_bmp = FreeImage_ConvertTo32Bits(tmp);
-	FreeImage_Unload(tmp);
-	
-}
-
-
-NAN_METHOD(Image::New) { NAN_HS;
+	REQ_OBJ_ARG(0, emitter);
 	
 	Image *image = new Image();
+	image->_emitter.Reset(emitter);
+	
 	image->Wrap(info.This());
-	registerImage(image);
 	
 	RET_VALUE(info.This());
 	
 }
 
 
-NAN_GETTER(Image::WidthGetter) { NAN_HS;
+NAN_GETTER(Image::widthGetter) { THIS_IMAGE;
 	
-	Image *image = ObjectWrap::Unwrap<Image>(info.This());
-	
-	RET_VALUE(JS_INT(image->GetWidth()));
+	RET_VALUE(JS_INT(FreeImage_GetWidth(image->_bitmap)));
 	
 }
 
 
-NAN_GETTER(Image::HeightGetter) { NAN_HS;
+NAN_GETTER(Image::heightGetter) { THIS_IMAGE;
 	
-	Image *image = ObjectWrap::Unwrap<Image>(info.This());
-	
-	RET_VALUE(JS_INT(image->GetHeight()));
+	RET_VALUE(JS_INT(FreeImage_GetHeight(image->_bitmap)));
 	
 }
 
 
-NAN_GETTER(Image::PitchGetter) { NAN_HS;
+NAN_METHOD(Image::load) { THIS_IMAGE;
 	
-	Image *image = ObjectWrap::Unwrap<Image>(info.This());
+	REQ_UTF8_ARG(0, src);
 	
-	RET_VALUE(JS_INT(image->GetPitch()));
-	
-}
-
-
-NAN_GETTER(Image::SrcGetter) { NAN_HS;
-	
-	Image *image = ObjectWrap::Unwrap<Image>(info.This());
-	
-	RET_VALUE(JS_STR(image->filename));
-	
-}
-
-
-NAN_SETTER(Image::SrcSetter) { NAN_HS;
-	
-	Nan::MaybeLocal<v8::Object> buffer;
-	
-	Image *image = ObjectWrap::Unwrap<Image>(info.This());
-	String::Utf8Value filename_s(value->ToString());
-	image->Load(*filename_s);
+	FREE_IMAGE_FORMAT format = FreeImage_GetFileType(*src, 0);
+	FIBITMAP *tmp = FreeImage_Load(format, *src, 0);
+	_bitmap = FreeImage_ConvertTo32Bits(tmp);
+	FreeImage_Unload(tmp);
 	
 	// adjust internal fields
-	size_t num_pixels = FreeImage_GetWidth(image->image_bmp) * FreeImage_GetHeight(image->image_bmp);
-	BYTE *pixels = FreeImage_GetBits(image->image_bmp);
+	size_t num_pixels = FreeImage_GetWidth(image->_bitmap) * FreeImage_GetHeight(image->_bitmap);
+	BYTE *pixels = FreeImage_GetBits(image->_bitmap);
 	size_t num_bytes = num_pixels * 4;
 	
 	// FreeImage stores data in BGR
@@ -173,38 +128,23 @@ NAN_SETTER(Image::SrcSetter) { NAN_HS;
 		pixels[i4 + 2] = temp;
 	}
 	
-	buffer= Nan::NewBuffer((int)num_bytes);
+	Nan::MaybeLocal<v8::Object> buffer = Nan::NewBuffer((int)num_bytes);
 	
 	std::memcpy(node::Buffer::Data(buffer.ToLocalChecked()), pixels, (int)num_bytes);
 	
 	Nan::Set(info.This(), JS_STR("data"), buffer.ToLocalChecked());
 	
-	// emit event
-	Nan::MaybeLocal<Value> emit_v = Nan::Get(info.This(), JS_STR("emit"));//info.This()->Get(Nan::New<String>("emit"));
-	assert(emit_v.ToLocalChecked()->IsFunction());
-	Local<Function> emit_f = emit_v.ToLocalChecked().As<Function>();
-	
-	Handle<Value> argv[2] = {
-		JS_STR("load"), // event name
-		value	// argument
-	};
-	
-	Nan::TryCatch tc;
-	
-	emit_f->Call(info.This(), 2, argv);
-	
-	if (tc.HasCaught()) {
-		Nan::FatalException(tc);
-	}
+	Local<Value> argv[2] = { JS_STR("load"), src };
+	image->_emit(2, argv);
 	
 }
 
 
-NAN_METHOD(Image::save) { NAN_HS;
+NAN_METHOD(Image::save) { THIS_IMAGE;
 	
-	REQ_UTF8_ARG(0, filename)
+	REQ_UTF8_ARG(0, dest)
 	
-	FREE_IMAGE_FORMAT format = FreeImage_GetFIFFromFilename(*filename);
+	FREE_IMAGE_FORMAT format = FreeImage_GetFIFFrom_filename(*dest);
 	
 	void *buffer = node::Buffer::Data(info[1]);
 	
@@ -230,7 +170,7 @@ NAN_METHOD(Image::save) { NAN_HS;
 		FreeImage_Unload(old);
 	}
 	
-	bool ret = FreeImage_Save(format, image, *filename) == 1;
+	bool ret = FreeImage_Save(format, image, *dest) == 1;
 	FreeImage_Unload(image);
 	
 	RET_VALUE(Nan::New<Boolean>(ret));
@@ -240,11 +180,8 @@ NAN_METHOD(Image::save) { NAN_HS;
 
 Image::~Image() {
 	
-	if (image_bmp) {
-		#ifdef LOGGING
-		cout<<"	Deleting image"<<endl;
-		#endif
-		FreeImage_Unload(image_bmp);
+	if (_bitmap) {
+		FreeImage_Unload(_bitmap);
 	}
 	
 	unregisterImage(this);
@@ -254,20 +191,13 @@ Image::~Image() {
 
 void Image::deinit() {
 	
-	#ifdef LOGGING
-	cout<<"Image AtExit()"<<endl;
-	#endif
-	
 	vector<Image*>::iterator it = images.begin();
 	while (it != images.end()) {
 		Image *img = *it;
 		
-		if (img->image_bmp) {
-			#ifdef LOGGING
-			cout<<"	Deleting image"<<endl;
-			#endif
-			FreeImage_Unload(img->image_bmp);
-			img->image_bmp = NULL;
+		if (img->_bitmap) {
+			FreeImage_Unload(img->_bitmap);
+			img->_bitmap = NULL;
 		}
 		
 		it++;

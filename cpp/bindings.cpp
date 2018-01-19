@@ -10,7 +10,7 @@ using namespace std;
 extern "C" {
 
 
-void init(Handle<Object> target) {
+NAN_MODULE_INIT(init) {
 	
 	atexit(Image::deinit);
 	
