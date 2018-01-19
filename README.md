@@ -13,7 +13,7 @@ Note: as this is a compiled addon, compilation tools must be in place on your sy
 Such as MSVS13 for Windows, where `npm install --global windows-build-tools` most probably helps.
 
 
-## Use
+## Usage
 
 This module implements Image class suitable for loading FreeImage supported formats.
 
@@ -40,3 +40,17 @@ Here `Image` is used to load a texture. Constructed object receives src property
 then the file is read and `'load'` event emitted. After this `image.data` is
 available as a Buffer, containing whole pixel data, and `image.width`/`image.height`
 contain image dimensions.
+
+Image class is supposed to provide the basic interface, which other libs, such as
+three.js are looking for. However, some additional features were added, and some removed.
+
+
+### Properties
+
+* `get/set number width/naturalWidth` - image width.
+* `get/set number height/naturalHeight` - image height.
+* `get/set [width, height] wh` - image width and height.
+* `get/set {width, height} size` - image width and height.
+* `get/set string src` - image source file.
+* `set function onload` - image source file.
+* `get boolean complete` - if image has already been loaded.

@@ -48,9 +48,11 @@ NAN_MODULE_INIT(Image::init) {
 	
 		// prototype
 	Nan::SetPrototypeMethod(ctor, "save", save);
+	Nan::SetPrototypeMethod(ctor, "load", load);
 	
 	Local<ObjectTemplate> proto = ctor->PrototypeTemplate();
-	ACCESSOR_RW(proto, gravity);
+	ACCESSOR_R(proto, width);
+	ACCESSOR_R(proto, height);
 	
 	_constructor.Reset(Nan::GetFunction(ctor).ToLocalChecked());
 	Nan::Set(target, JS_STR("Image"), Nan::GetFunction(ctor).ToLocalChecked());
@@ -111,7 +113,7 @@ NAN_METHOD(Image::load) { THIS_IMAGE;
 	
 	FREE_IMAGE_FORMAT format = FreeImage_GetFileType(*src, 0);
 	FIBITMAP *tmp = FreeImage_Load(format, *src, 0);
-	_bitmap = FreeImage_ConvertTo32Bits(tmp);
+	image->_bitmap = FreeImage_ConvertTo32Bits(tmp);
 	FreeImage_Unload(tmp);
 	
 	// adjust internal fields
@@ -134,7 +136,7 @@ NAN_METHOD(Image::load) { THIS_IMAGE;
 	
 	Nan::Set(info.This(), JS_STR("data"), buffer.ToLocalChecked());
 	
-	Local<Value> argv[2] = { JS_STR("load"), src };
+	Local<Value> argv[2] = { JS_STR("load"), info[0] };
 	image->_emit(2, argv);
 	
 }
@@ -144,7 +146,7 @@ NAN_METHOD(Image::save) { THIS_IMAGE;
 	
 	REQ_UTF8_ARG(0, dest)
 	
-	FREE_IMAGE_FORMAT format = FreeImage_GetFIFFrom_filename(*dest);
+	FREE_IMAGE_FORMAT format = FreeImage_GetFIFFromFilename(*dest);
 	
 	void *buffer = node::Buffer::Data(info[1]);
 	
@@ -157,7 +159,7 @@ NAN_METHOD(Image::save) { THIS_IMAGE;
 	USE_UINT32_ARG(7, greenMask, 0x00FF0000);
 	USE_UINT32_ARG(8, blueMask, 0x0000FF00);
 	
-	FIBITMAP *image = FreeImage_ConvertFromRawBits(
+	FIBITMAP *output = FreeImage_ConvertFromRawBits(
 		(BYTE*)buffer,
 		width, height,
 		pitch, bpp,
@@ -165,13 +167,13 @@ NAN_METHOD(Image::save) { THIS_IMAGE;
 	);
 	
 	if (format == FIF_JPEG && bpp != 24) {
-		FIBITMAP *old = image;
-		image = FreeImage_ConvertTo24Bits(image);
+		FIBITMAP *old = output;
+		output = FreeImage_ConvertTo24Bits(output);
 		FreeImage_Unload(old);
 	}
 	
-	bool ret = FreeImage_Save(format, image, *dest) == 1;
-	FreeImage_Unload(image);
+	bool ret = FreeImage_Save(format, output, *dest) == 1;
+	FreeImage_Unload(output);
 	
 	RET_VALUE(Nan::New<Boolean>(ret));
 	
