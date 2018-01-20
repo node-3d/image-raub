@@ -109,20 +109,28 @@ NAN_GETTER(Image::heightGetter) { THIS_IMAGE;
 
 NAN_METHOD(Image::load) { THIS_IMAGE;
 	
-	REQ_UTF8_ARG(0, src);
+	REQ_OBJ_ARG(0, file);
 	
-	FREE_IMAGE_FORMAT format = FreeImage_GetFileType(*src, 0);
-	FIBITMAP *tmp = FreeImage_Load(format, *src, 0);
-	image->_bitmap = FreeImage_ConvertTo32Bits(tmp);
-	FreeImage_Unload(tmp);
+	BYTE *bufferData = reinterpret_cast<BYTE*>(node::Buffer::Data(file));
+	size_t bufferLength = node::Buffer::Length(file);
+	
+	FIMEMORY *memStream = FreeImage_OpenMemory(bufferData, bufferLength);
+	
+	FREE_IMAGE_FORMAT format = FreeImage_GetFileTypeFromMemory(memStream, bufferLength);
+	FIBITMAP *tmpBitmap = FreeImage_LoadFromMemory(format, memStream);
+	
+	image->_bitmap = FreeImage_ConvertTo32Bits(tmpBitmap);
+	
+	FreeImage_Unload(tmpBitmap);
+	
+	FreeImage_CloseMemory(memStream);
 	
 	// adjust internal fields
 	size_t num_pixels = FreeImage_GetWidth(image->_bitmap) * FreeImage_GetHeight(image->_bitmap);
 	BYTE *pixels = FreeImage_GetBits(image->_bitmap);
 	size_t num_bytes = num_pixels * 4;
 	
-	// FreeImage stores data in BGR
-	// Convert from BGR to RGB
+	// FreeImage stores data in BGR. Convert from BGR to RGB.
 	for (size_t i = 0; i < num_pixels; i++) {
 		size_t i4 = i << 2;
 		BYTE temp = pixels[i4 + 0];
@@ -136,8 +144,8 @@ NAN_METHOD(Image::load) { THIS_IMAGE;
 	
 	Nan::Set(info.This(), JS_STR("data"), buffer.ToLocalChecked());
 	
-	Local<Value> argv[2] = { JS_STR("load"), info[0] };
-	image->_emit(2, argv);
+	Local<Value> argv = JS_STR("load");
+	image->_emit(1, &argv);
 	
 }
 
@@ -146,6 +154,7 @@ NAN_METHOD(Image::save) { THIS_IMAGE;
 	
 	REQ_UTF8_ARG(0, dest)
 	
+	// Local<Object> buffer = Nan::Get(image, JS_STR("data")).ToLocalChecked();
 	FREE_IMAGE_FORMAT format = FreeImage_GetFIFFromFilename(*dest);
 	
 	void *buffer = node::Buffer::Data(info[1]);

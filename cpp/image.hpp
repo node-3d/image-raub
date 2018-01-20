@@ -10,11 +10,9 @@
 class Image : public node::ObjectWrap {
 	
 public:
+	
 	static NAN_MODULE_INIT(init);
 	static void deinit();
-	
-	void *GetData();
-	void Load (const char *filename);
 	
 	
 protected:
@@ -31,6 +29,7 @@ protected:
 	
 	
 private:
+	
 	static Nan::Persistent<v8::Function> _constructor;
 	
 	Nan::Persistent<v8::Object> _emitter;

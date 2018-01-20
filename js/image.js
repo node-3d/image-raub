@@ -1,6 +1,7 @@
 'use strict';
 
-const util = require('util');
+const util         = require('util');
+const fs           = require('fs');
 const EventEmitter = require('events');
 
 const { Image } = require('../core');
@@ -8,7 +9,7 @@ const { Image } = require('../core');
 
 class JsImage extends EventEmitter {
 	
-	constructor() {
+	constructor(src) {
 		
 		super();
 		
@@ -19,12 +20,18 @@ class JsImage extends EventEmitter {
 		this._complete = false;
 		this._src = '';
 		
-		this.on('load', src => {
+		this.on('load', err => {
 			this._complete = true;
-			if (this._loadCb) {
-				this._loadCb(src);
-			}
 		});
+		
+		this.on('error', err => {
+			this._complete = false;
+			console.error('Image Error:', err);
+		});
+		
+		if (typeof src === 'string') {
+			this.src = src;
+		}
 		
 	}
 	
@@ -32,7 +39,7 @@ class JsImage extends EventEmitter {
 	on(name, cb) {
 		super.on(name, cb);
 		if (name === 'load' && this._complete) {
-			cb.call(this, this._src);
+			cb.call(this);
 		}
 	}
 	
@@ -50,17 +57,31 @@ class JsImage extends EventEmitter {
 	
 	
 	get src() { return this._src; }
+	
 	set src(v) {
+		
 		if (v === this._src) {
-			this.emit('load', v);
+			this.emit('load');
 			return;
 		}
+		
 		this._complete = false;
 		this._src = v;
-		this._image.load(v);
+		
+		fs.readFile(this._src, (err, data) => {
+			if (err) {
+				return this.emit('error', err);
+			}
+			this._image.load(data);
+		});
+		
 	}
 	
-	get onload() { return this.listeners; }
+	
+	get onerror() { return this.listeners('error'); }
+	set onerror(cb) { this.on('error', cb); }
+	
+	get onload() { return this.listeners('load'); }
 	set onload(cb) { this.on('load', cb); }
 	
 	
