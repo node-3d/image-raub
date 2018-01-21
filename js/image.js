@@ -46,6 +46,8 @@ class JsImage extends EventEmitter {
 	
 	get complete() { return this._complete; }
 	
+	get data() { return this._complete ? this._image.data : null; }
+	
 	
 	get width() { return this._complete ? this._image.width : 0; }
 	get height() { return this._complete ? this._image.height : 0; }
