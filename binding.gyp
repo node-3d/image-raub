@@ -13,7 +13,7 @@
 				'cpp/image.cpp',
 			],
 			'include_dirs': [
-				'<!(node -e "require(\'nan\')")',
+				'<!(node -e "require(\'node-addon-tools-raub\').printNan()")',
 				'<!(node -e "console.log(require(\'node-addon-tools-raub\').include)")',
 				'<(freeimage_include)',
 				'<(module_root_dir)/include',
