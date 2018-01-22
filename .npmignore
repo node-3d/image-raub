@@ -8,5 +8,7 @@ build*
 Debug
 node_modules
 package-lock.json
-bin_*
+binary
 *.log
+freeimage.jpg
+_test.js
