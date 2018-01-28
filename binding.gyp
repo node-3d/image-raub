@@ -1,9 +1,9 @@
 {
 	'variables': {
-		'_del'              : '<!(node -e "console.log(require(\'node-addon-tools-raub\')._del)")',
-		'_rd'               : '<!(node -e "console.log(require(\'node-addon-tools-raub\')._rd)")',
-		'freeimage_include' : '<!(node -e "console.log(require(\'node-deps-freeimage-raub\').include)")',
-		'freeimage_bin'     : '<!(node -e "console.log(require(\'node-deps-freeimage-raub\').bin)")',
+		'_del'              : '<!(node -e "console.log(require(\'addon-tools-raub\')._del)")',
+		'_rd'               : '<!(node -e "console.log(require(\'addon-tools-raub\')._rd)")',
+		'freeimage_include' : '<!(node -e "console.log(require(\'deps-freeimage-raub\').include)")',
+		'freeimage_bin'     : '<!(node -e "console.log(require(\'deps-freeimage-raub\').bin)")',
 	},
 	'targets': [
 		{
@@ -13,8 +13,8 @@
 				'cpp/image.cpp',
 			],
 			'include_dirs': [
-				'<!(node -e "require(\'node-addon-tools-raub\').printNan()")',
-				'<!(node -e "console.log(require(\'node-addon-tools-raub\').include)")',
+				'<!(node -e "require(\'addon-tools-raub\').printNan()")',
+				'<!(node -e "console.log(require(\'addon-tools-raub\').include)")',
 				'<(freeimage_include)',
 				'<(module_root_dir)/include',
 			],

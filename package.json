@@ -1,6 +1,6 @@
 {
   "name": "image-raub",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Native Image loader for Node.js",
   "author": "Luis Blanco <raubtierxxx@gmail.com>",
   "main": "index.js",
