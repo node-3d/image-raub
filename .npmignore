@@ -1,5 +1,4 @@
 .idea
-.cproject,.project
 .cproject
 .project
 .lock-wscript
@@ -10,5 +9,5 @@ node_modules
 package-lock.json
 binary
 *.log
-freeimage.jpg
-_test.js
+examples
+.gitignore

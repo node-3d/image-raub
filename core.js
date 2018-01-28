@@ -1,6 +1,6 @@
 'use strict';
 
 // Add deps dll dirs
-require('node-deps-freeimage-raub');
+require('deps-freeimage-raub');
 
 module.exports = require('./binary/image');
