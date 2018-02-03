@@ -11,3 +11,4 @@ binary
 *.log
 examples
 .gitignore
+test

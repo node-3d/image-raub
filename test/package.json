@@ -1,9 +1,13 @@
 {
-  "name": "image-raub",
-  "version": "0.0.3",
-  "description": "Native Image loader for Node.js",
+  "name": "TEST",
   "author": "Luis Blanco <raubtierxxx@gmail.com>",
-  "main": "index.js",
+  "description": "TEST",
+  "version": "0.0.1",
+  "main": "mocha",
+  "scripts": {
+    "test": "mocha",
+    "start": "mocha"
+  },
   "keywords": [
     "image",
     "node",
@@ -23,7 +27,9 @@
     "url": "https://github.com/raub/node-image.git"
   },
   "dependencies": {
-    "addon-tools-raub": "0.0.7",
-    "deps-freeimage-raub": "0.0.4"
+    "image-raub": "file:../",
+    "chai": "^4.1.2",
+    "mocha": "^5.0.0",
+    "sinon": "^4.2.2"
   }
 }

@@ -1,9 +1,10 @@
 {
 	'variables': {
-		'_del'              : '<!(node -e "console.log(require(\'addon-tools-raub\')._del)")',
-		'_rd'               : '<!(node -e "console.log(require(\'addon-tools-raub\')._rd)")',
-		'freeimage_include' : '<!(node -e "console.log(require(\'deps-freeimage-raub\').include)")',
-		'freeimage_bin'     : '<!(node -e "console.log(require(\'deps-freeimage-raub\').bin)")',
+		'rm'                : '<!(node -e "require(\'addon-tools-raub\').rm()")',
+		'cp'                : '<!(node -e "require(\'addon-tools-raub\').cp()")',
+		'mkdir'             : '<!(node -e "require(\'addon-tools-raub\').mkdir()")',
+		'freeimage_include' : '<!(node -e "require(\'deps-freeimage-raub\').include()")',
+		'freeimage_bin'     : '<!(node -e "require(\'deps-freeimage-raub\').bin()")',
 	},
 	'targets': [
 		{
@@ -13,8 +14,7 @@
 				'cpp/image.cpp',
 			],
 			'include_dirs': [
-				'<!(node -e "require(\'addon-tools-raub\').printNan()")',
-				'<!(node -e "console.log(require(\'addon-tools-raub\').include)")',
+				'<!@(node -e "require(\'addon-tools-raub\').include()")',
 				'<(freeimage_include)',
 				'<(module_root_dir)/include',
 			],
@@ -70,14 +70,7 @@
 				'action_name' : 'Directory created.',
 				'inputs'      : [],
 				'outputs'     : ['build'],
-				'conditions'  : [
-					[ 'OS=="linux"', { 'action': ['mkdir', '-p', 'binary'] } ],
-					[ 'OS=="mac"', { 'action': ['mkdir', '-p', 'binary'] } ],
-					[ 'OS=="win"', { 'action': [
-						'<(_rd) "<(module_root_dir)/binary" && ' +
-						'md "<(module_root_dir)/binary"'
-					] } ],
-				],
+				'action': ['<(mkdir)', '-p', 'binary']
 			}],
 		},
 		{
@@ -88,25 +81,9 @@
 				'action_name' : 'Module copied.',
 				'inputs'      : [],
 				'outputs'     : ['binary'],
-				'conditions'  : [
-					[ 'OS=="linux"', { 'action' : [
-						'cp',
-						'<(module_root_dir)/build/Release/image.node',
-						'<(module_root_dir)/binary/image.node'
-					] } ],
-					[ 'OS=="mac"', { 'action' : [
-						'cp',
-						'<(module_root_dir)/build/Release/image.node',
-						'<(module_root_dir)/binary/image.node'
-					] } ],
-					[ 'OS=="win"', { 'action' : [
-						'copy "<(module_root_dir)/build/Release/image.node"' +
-						' "<(module_root_dir)/binary/image.node"'
-					] } ],
-				],
+				'action'      : ['<(cp)', 'build/Release/image.node', 'binary/image.node'],
 			}],
 		},
-		
 		{
 			'target_name'  : 'remove_extras',
 			'type'         : 'none',
@@ -128,8 +105,9 @@
 						'<(module_root_dir)/build/Release/image.node'
 					] } ],
 					[ 'OS=="win"', { 'action' : [
-						'<(_del) "<(module_root_dir)/build/Release/image.*" && ' +
-						'<(_del) "<(module_root_dir)/build/Release/obj/image/*.*"'
+						'<(rm)',
+						'<(module_root_dir)/build/Release/image.*',
+						'<(module_root_dir)/build/Release/obj/image/*.*'
 					] } ],
 				],
 			}],
