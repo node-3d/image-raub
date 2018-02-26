@@ -80,6 +80,11 @@ class JsImage extends EventEmitter {
 	}
 	
 	
+	addEventListener(type, cb) {
+		this.on(type, cb.bind(this));
+	}
+	
+	
 	get onerror() { return this.listeners('error'); }
 	set onerror(cb) { this.on('error', cb); }
 	
