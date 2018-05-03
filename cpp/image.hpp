@@ -2,22 +2,29 @@
 #define _IMAGE_HPP_
 
 
-#include <addon-tools.hpp>
+#include <event-emitter.hpp>
 
 #include <FreeImage.h>
 
 
-class Image : public node::ObjectWrap {
+class Image : public EventEmitter {
 	
 public:
 	
-	static NAN_MODULE_INIT(init);
-	static void deinit();
+	// Public V8 init/deinit
+	static void init(V8_VAR_OBJ target);
 	
+	static bool isImage(V8_VAR_OBJ obj);
+	
+	// Destroy an instance from C++ land
+	void _destroy();
 	
 protected:
 	
 	static NAN_METHOD(newCtor);
+	
+	static NAN_METHOD(destroy);
+	static NAN_GETTER(isDestroyedGetter);
 	
 	static NAN_GETTER(widthGetter);
 	static NAN_GETTER(heightGetter);
@@ -25,15 +32,15 @@ protected:
 	static NAN_METHOD(load);
 	static NAN_METHOD(save);
 	
-	virtual ~Image();
+	~Image();
 	
 	
 private:
 	
-	static Nan::Persistent<v8::Function> _constructor;
+	static V8_STORE_FT _protoImage; // for inheritance
+	static V8_STORE_FUNC _ctorImage;
 	
-	Nan::Persistent<v8::Object> _emitter;
-	inline void _emit(int argc, v8::Local<v8::Value> argv[]);
+	bool _isDestroyed;
 	
 	FIBITMAP *_bitmap;
 	

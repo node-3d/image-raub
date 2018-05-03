@@ -1,10 +1,8 @@
 #include <cstdlib>
 
-#include "image.hpp"
+#include <event-emitter.hpp>
 
-using namespace v8;
-using namespace node;
-using namespace std;
+#include "image.hpp"
 
 
 extern "C" {
@@ -12,14 +10,14 @@ extern "C" {
 
 NAN_MODULE_INIT(init) {
 	
-	atexit(Image::deinit);
+	EventEmitter::init(target);
 	
 	Image::init(target);
 	
 }
 
 
-NODE_MODULE(NODE_GYP_MODULE_NAME, init);
+NODE_MODULE(image, init);
 
 
 } // extern "C"

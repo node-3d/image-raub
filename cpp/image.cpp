@@ -4,115 +4,70 @@
 
 #include "image.hpp"
 
+
 using namespace v8;
 using namespace node;
 using namespace std;
 
+
+// ------ Aux macros
+
 #define THIS_IMAGE                                                            \
 	Image *image = ObjectWrap::Unwrap<Image>(info.This());
+	
+#define THIS_CHECK                                                            \
+	if (image->_isDestroyed) return;
 
 #define USE_UINT32_ARG(I, VAR, DEF)                                           \
 	CHECK_LET_ARG(I, IsUint32(), "uint32");                                   \
 	unsigned int VAR = IS_ARG_EMPTY(I) ? (DEF) : info[I]->Uint32Value();
 
 
-static vector<Image*> images;
+// ------ Constructor and Destructor
 
-
-static void registerImage(Image *obj) {
-	images.push_back(obj);
-}
-
-
-static void unregisterImage(Image* obj) {
-	vector<Image*>::iterator it = images.begin();
-	while (it != images.end()) {
-		if (*it == obj) {
-			images.erase(it);
-			break;
-		}
-		it++;
-	}
-}
-
-
-Nan::Persistent<v8::Function> Image::_constructor;
-
-
-NAN_MODULE_INIT(Image::init) {
+Image::~Image() {
 	
-	Local<FunctionTemplate> ctor = Nan::New<FunctionTemplate>(newCtor);
-	
-	ctor->InstanceTemplate()->SetInternalFieldCount(1);
-	ctor->SetClassName(JS_STR("Image"));
-	
-		// prototype
-	Nan::SetPrototypeMethod(ctor, "save", save);
-	Nan::SetPrototypeMethod(ctor, "load", load);
-	
-	Local<ObjectTemplate> proto = ctor->PrototypeTemplate();
-	ACCESSOR_R(proto, width);
-	ACCESSOR_R(proto, height);
-	
-	_constructor.Reset(Nan::GetFunction(ctor).ToLocalChecked());
-	Nan::Set(target, JS_STR("Image"), Nan::GetFunction(ctor).ToLocalChecked());
-	
-	FreeImage_Initialise(true);
+	_destroy();
 	
 }
 
 
-void Image::_emit(int argc, Local<Value> argv[]) {
+void Image::_destroy() { DES_CHECK;
 	
-	if ( ! Nan::New(_emitter)->Has(JS_STR("emit")) ) {
-		return;
+	if (_bitmap) {
+		FreeImage_Unload(_bitmap);
+		_bitmap = nullptr;
 	}
 	
-	Nan::Callback callback(Nan::New(_emitter)->Get(JS_STR("emit")).As<Function>());
+	_isDestroyed = true;
 	
-	if ( ! callback.IsEmpty() ) {
-		callback.Call(argc, argv);
-	}
+	EventEmitter::_destroy();
 	
 }
 
 
-NAN_METHOD(Image::newCtor) {
+// ------ Methods and props
+
+NAN_GETTER(Image::widthGetter) { THIS_IMAGE; THIS_CHECK;
 	
-	CTOR_CHECK("Image");
-	
-	REQ_OBJ_ARG(0, emitter);
-	
-	Image *image = new Image();
-	image->_emitter.Reset(emitter);
-	
-	image->Wrap(info.This());
-	
-	RET_VALUE(info.This());
+	RET_VALUE(JS_INT(image->_bitmap ? FreeImage_GetWidth(image->_bitmap) : 0));
 	
 }
 
 
-NAN_GETTER(Image::widthGetter) { THIS_IMAGE;
+NAN_GETTER(Image::heightGetter) { THIS_IMAGE; THIS_CHECK;
 	
-	RET_VALUE(JS_INT(FreeImage_GetWidth(image->_bitmap)));
-	
-}
-
-
-NAN_GETTER(Image::heightGetter) { THIS_IMAGE;
-	
-	RET_VALUE(JS_INT(FreeImage_GetHeight(image->_bitmap)));
+	RET_VALUE(JS_INT(image->_bitmap ? FreeImage_GetHeight(image->_bitmap) : 0));
 	
 }
 
 
-NAN_METHOD(Image::load) { THIS_IMAGE;
+NAN_METHOD(Image::load) { THIS_IMAGE; THIS_CHECK;
 	
 	REQ_OBJ_ARG(0, file);
 	
-	BYTE *bufferData = reinterpret_cast<BYTE*>(node::Buffer::Data(file));
-	size_t bufferLength = node::Buffer::Length(file);
+	BYTE *bufferData = reinterpret_cast<BYTE*>(Buffer::Data(file));
+	size_t bufferLength = Buffer::Length(file);
 	
 	FIMEMORY *memStream = FreeImage_OpenMemory(bufferData, bufferLength);
 	
@@ -128,7 +83,7 @@ NAN_METHOD(Image::load) { THIS_IMAGE;
 	// adjust internal fields
 	size_t num_pixels = FreeImage_GetWidth(image->_bitmap) * FreeImage_GetHeight(image->_bitmap);
 	BYTE *pixels = FreeImage_GetBits(image->_bitmap);
-	size_t num_bytes = num_pixels * 4;
+	int num_bytes = static_cast<int>(num_pixels * 4);
 	
 	// FreeImage stores data in BGR. Convert from BGR to RGB.
 	for (size_t i = 0; i < num_pixels; i++) {
@@ -138,26 +93,24 @@ NAN_METHOD(Image::load) { THIS_IMAGE;
 		pixels[i4 + 2] = temp;
 	}
 	
-	Nan::MaybeLocal<v8::Object> buffer = Nan::NewBuffer((int)num_bytes);
+	V8_VAR_OBJ buffer = Nan::NewBuffer(num_bytes).ToLocalChecked();
 	
-	std::memcpy(node::Buffer::Data(buffer.ToLocalChecked()), pixels, (int)num_bytes);
+	memcpy(Buffer::Data(buffer), pixels, num_bytes);
 	
-	Nan::Set(info.This(), JS_STR("data"), buffer.ToLocalChecked());
+	Nan::Set(info.This(), JS_STR("data"), buffer);
 	
-	Local<Value> argv = JS_STR("load");
-	image->_emit(1, &argv);
+	image->emit("load");
 	
 }
 
 
-NAN_METHOD(Image::save) { THIS_IMAGE;
+NAN_METHOD(Image::save) { THIS_IMAGE; THIS_CHECK;
 	
 	REQ_UTF8_ARG(0, dest)
 	
-	// Local<Object> buffer = Nan::Get(image, JS_STR("data")).ToLocalChecked();
 	FREE_IMAGE_FORMAT format = FreeImage_GetFIFFromFilename(*dest);
 	
-	void *buffer = node::Buffer::Data(info[1]);
+	void *buffer = Buffer::Data(info[1]);
 	
 	REQ_UINT32_ARG(2, width);
 	REQ_UINT32_ARG(3, height);
@@ -189,31 +142,80 @@ NAN_METHOD(Image::save) { THIS_IMAGE;
 }
 
 
-Image::~Image() {
+// ------ System methods and props for ObjectWrap
+
+V8_STORE_FT Image::_protoImage;
+V8_STORE_FUNC Image::_ctorImage;
+
+
+void Image::init(V8_VAR_OBJ target) {
 	
-	if (_bitmap) {
-		FreeImage_Unload(_bitmap);
-	}
+	V8_VAR_FT proto = Nan::New<FunctionTemplate>(newCtor);
 	
-	unregisterImage(this);
+	// class Image inherits EventEmitter
+	V8_VAR_FT parent = Nan::New(EventEmitter::_protoEventEmitter);
+	proto->Inherit(parent);
+	
+	proto->InstanceTemplate()->SetInternalFieldCount(1);
+	proto->SetClassName(JS_STR("Image"));
+	
+	
+	// Accessors
+	V8_VAR_OT obj = proto->PrototypeTemplate();
+	ACCESSOR_R(obj, isDestroyed);
+	
+	ACCESSOR_R(obj, width);
+	ACCESSOR_R(obj, height);
+	
+	// -------- dynamic
+	
+	Nan::SetPrototypeMethod(proto, "destroy", destroy);
+	
+	Nan::SetPrototypeMethod(proto, "save", save);
+	Nan::SetPrototypeMethod(proto, "load", load);
+	
+	// -------- static
+	
+	V8_VAR_FUNC ctor = Nan::GetFunction(proto).ToLocalChecked();
+	
+	_protoImage.Reset(proto);
+	_ctorImage.Reset(ctor);
+	
+	Nan::Set(target, JS_STR("Image"), ctor);
+	
 	
 }
 
 
-void Image::deinit() {
+bool Image::isImage(V8_VAR_OBJ obj) {
+	return Nan::New(_protoImage)->HasInstance(obj);
+}
+
+
+NAN_METHOD(Image::newCtor) {
 	
-	vector<Image*>::iterator it = images.begin();
-	while (it != images.end()) {
-		Image *img = *it;
-		
-		if (img->_bitmap) {
-			FreeImage_Unload(img->_bitmap);
-			img->_bitmap = NULL;
-		}
-		
-		it++;
-	}
+	CTOR_CHECK("Image");
 	
-	FreeImage_DeInitialise();
+	Image *image = new Image();
+	image->Wrap(info.This());
+	
+	RET_VALUE(info.This());
 	
 }
+
+
+NAN_METHOD(Image::destroy) { THIS_IMAGE; THIS_CHECK;
+	
+	image->emit("destroy");
+	
+	image->_destroy();
+	
+}
+
+
+NAN_GETTER(Image::isDestroyedGetter) { THIS_IMAGE;
+	
+	RET_VALUE(JS_BOOL(image->_isDestroyed));
+	
+}
+

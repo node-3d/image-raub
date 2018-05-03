@@ -7,15 +7,11 @@ const EventEmitter = require('events');
 const { Image } = require('../core');
 
 
-class JsImage extends EventEmitter {
+class JsImage extends Image {
 	
 	constructor(src) {
 		
 		super();
-		
-		this.emit = this.emit.bind(this);
-		
-		this._image = new Image(this);
 		
 		this._complete = false;
 		this._src = '';
@@ -36,8 +32,19 @@ class JsImage extends EventEmitter {
 	}
 	
 	
+	addEventListener(type, cb) {
+		this.on(type, cb.bind(this));
+	}
+	
 	on(name, cb) {
 		super.on(name, cb);
+		if (name === 'load' && this._complete) {
+			cb.call(this);
+		}
+	}
+	
+	once(name, cb) {
+		super.once(name, cb);
 		if (name === 'load' && this._complete) {
 			cb.call(this);
 		}
@@ -46,11 +53,9 @@ class JsImage extends EventEmitter {
 	
 	get complete() { return this._complete; }
 	
-	get data() { return this._complete ? this._image.data : null; }
+	get data() { return this._complete ? this.data : null; }
 	
 	
-	get width() { return this._complete ? this._image.width : 0; }
-	get height() { return this._complete ? this._image.height : 0; }
 	get naturalWidth() { return this.width; }
 	get naturalHeight() { return this.height; }
 	
@@ -74,14 +79,9 @@ class JsImage extends EventEmitter {
 			if (err) {
 				return this.emit('error', err);
 			}
-			this._image.load(data);
+			this.load(data);
 		});
 		
-	}
-	
-	
-	addEventListener(type, cb) {
-		this.on(type, cb.bind(this));
 	}
 	
 	
@@ -94,9 +94,6 @@ class JsImage extends EventEmitter {
 	
 	[util.inspect.custom]() { return this.toString(); }
 	toString() { return `Image { ${this.width}x${this.height} ${this.src} }`; }
-	
-	
-	save(dest, w, h) { return this._image.save(dest, w, h); }
 	
 }
 
