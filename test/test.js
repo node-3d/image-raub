@@ -19,7 +19,7 @@ describe('Image', () => {
 	});
 	
 	it(`can be created`, () => {
-		expect(new Image()).to.be.an('object');
+		expect(new Image()).to.be.an.instanceof(Image);
 	});
 	
 	
@@ -34,6 +34,5 @@ describe('Image', () => {
 			expect(new Image()).to.respondTo(method);
 		});
 	});
-	
 	
 });

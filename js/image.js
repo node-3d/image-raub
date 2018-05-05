@@ -1,8 +1,7 @@
 'use strict';
 
-const util         = require('util');
-const fs           = require('fs');
-const EventEmitter = require('events');
+const util = require('util');
+const fs   = require('fs');
 
 const { Image } = require('../core');
 
