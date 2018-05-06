@@ -1,9 +1,11 @@
 'use strict';
 
-const util = require('util');
-const fs   = require('fs');
+const util  = require('util');
+const fs    = require('fs');
 
 const { Image } = require('../core');
+
+const download = require('./download');
 
 
 class JsImage extends Image {
@@ -14,6 +16,7 @@ class JsImage extends Image {
 		
 		this._complete = false;
 		this._src = '';
+		this._isDataUri = false;
 		
 		this.on('load', err => {
 			this._complete = true;
@@ -73,7 +76,36 @@ class JsImage extends Image {
 		
 		this._complete = false;
 		this._src = v;
+		this._isDataUri = false;
 		
+		
+		// Data URI
+		if (/^data:/.test(this._src)) {
+			
+			this._isDataUri = true;
+			const [head, body] = this._src.split(',');
+			const isBase64 = head.indexOf('base64') > -1
+			const data = isBase64 ? Buffer.from(body, 'base64') : Buffer.from(unescape(body));
+			this.load(data);
+			return;
+			
+		}
+		
+		
+		// Remote image
+		if (/^https?:\/\//i.test(this._src)) {
+			
+			download(this._src).then(
+				data => this.load(data),
+				err => this.emit('error', err)
+			);
+			
+			return;
+			
+		}
+		
+		
+		// Filesystem image
 		fs.readFile(this._src, (err, data) => {
 			if (err) {
 				return this.emit('error', err);
@@ -92,7 +124,10 @@ class JsImage extends Image {
 	
 	
 	[util.inspect.custom]() { return this.toString(); }
-	toString() { return `Image { ${this.width}x${this.height} ${this.src} }`; }
+	toString() {
+		const src = this._isDataUri ? `${this.src.slice(0, 32)}...` : this.src;
+		return `Image { ${this.width}x${this.height} ${src} }`;
+	}
 	
 }
 
