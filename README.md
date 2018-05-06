@@ -1,6 +1,14 @@
 # Image for Node.js
 
-Image crossplatform addon with minimized dependencies.
+This is a part of [Node3D](https://github.com/node-3d) project.
+
+
+## Synopsis
+
+The basic Image interface is provided, so that other libs would recognize it
+as a usual HTML Image element. Resulting Image class is suitable for loading
+FreeImage supported image formats. The module is shipped as **Node.js** C++
+addon with minimized dependencies.
 
 
 ## Install
@@ -9,16 +17,13 @@ Image crossplatform addon with minimized dependencies.
 npm i -s image-raub
 ```
 
-Note: as this is a compiled addon, compilation tools must be in place on your system.
-Such as MSVS13 for Windows, where **ADMIN PRIVELEGED** `npm i -g windows-build-tools`
-most probably helps.
+> Note: compilation tools must be in place on your system.
+For Windows, use **ADMIN PRIVELEGED** command line:
+\`npm i -g windows-build-tools\`.
+Also **Windows** needs **vcredist 2013** to be installed.
 
 
 ## Usage
-
-This module implements Image class suitable for loading FreeImage supported formats.
-
-Example usage:
 
 ```js
 const Image = require('image-raub');
@@ -37,13 +42,10 @@ image.onload = () => {
 image.src = `${__dirname}/texture.jpg`;
 ```
 
-Here `Image` is used to load a texture. Constructed object receives src property,
-then the file is read and `'load'` event emitted. After this `image.data` is
-available as a Buffer, containing whole pixel data, and `image.width`/`image.height`
-contain image dimensions.
-
-Image class is supposed to provide the basic interface, which other libs, such as
-three.js are looking for. However, some additional features were added, and some removed.
+Here `Image` is used to load a texture. The constructed object receives `src` property,
+then the file is read and `'load'` event is emitted. After that, `image.data` is
+available as a `Buffer`, containing the whole pixel data, and `image.width`,`image.height`
+contain the dimensions.
 
 
 ### Properties
