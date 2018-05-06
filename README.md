@@ -5,10 +5,15 @@ This is a part of [Node3D](https://github.com/node-3d) project.
 
 ## Synopsis
 
-The basic Image interface is provided, so that other libs would recognize it
-as a usual HTML Image element. Resulting Image class is suitable for loading
-FreeImage supported image formats. The module is shipped as **Node.js** C++
-addon with minimized dependencies.
+**Node.js** addon implementing the
+[HTMLImageElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/Image).
+
+The `src` property can be:
+* A local file.
+* A data URI.
+* A http(s) URL.
+
+Uses [FreeImage](http://freeimage.sourceforge.net/) as a backend decoder.
 
 
 ## Install
@@ -44,7 +49,7 @@ image.src = `${__dirname}/texture.jpg`;
 
 Here `Image` is used to load a texture. The constructed object receives `src` property,
 then the file is read and `'load'` event is emitted. After that, `image.data` is
-available as a `Buffer`, containing the whole pixel data, and `image.width`,`image.height`
+available as a `Buffer`, containing the whole pixel data, and `image.width`/`image.height`
 contain the dimensions.
 
 
