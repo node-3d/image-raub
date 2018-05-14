@@ -67,7 +67,8 @@ contain the dimensions.
 
 ### Methods:
 
-* `on(string type, function cb)` - listen for Image events.
+* `addEventListener|on(string type, function cb)` - listen for Image events.
+* `once(string type, function cb)` - listen for one Image event.
 * `save(string dest, number ?w, number ?h)` - save Image to file. Resize to `w, h` is optional.
 
 
