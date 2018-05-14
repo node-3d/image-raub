@@ -74,6 +74,10 @@ NAN_METHOD(Image::load) { THIS_IMAGE; THIS_CHECK;
 	FREE_IMAGE_FORMAT format = FreeImage_GetFileTypeFromMemory(memStream, bufferLength);
 	FIBITMAP *tmpBitmap = FreeImage_LoadFromMemory(format, memStream);
 	
+	if (image->_bitmap) {
+		FreeImage_Unload(image->_bitmap);
+	}
+	
 	image->_bitmap = FreeImage_ConvertTo32Bits(tmpBitmap);
 	
 	FreeImage_Unload(tmpBitmap);
@@ -97,7 +101,21 @@ NAN_METHOD(Image::load) { THIS_IMAGE; THIS_CHECK;
 	
 	memcpy(Buffer::Data(buffer), pixels, num_bytes);
 	
-	Nan::Set(info.This(), JS_STR("data"), buffer);
+	Nan::Set(info.This(), JS_STR("_data"), buffer);
+	
+	image->emit("load");
+	
+}
+
+
+NAN_METHOD(Image::unload) { THIS_IMAGE; THIS_CHECK;
+	
+	if (image->_bitmap) {
+		FreeImage_Unload(image->_bitmap);
+		image->_bitmap = nullptr;
+	}
+	
+	Nan::Set(info.This(), JS_STR("_data"), Nan::Null());
 	
 	image->emit("load");
 	
@@ -122,7 +140,7 @@ NAN_METHOD(Image::save) { THIS_IMAGE; THIS_CHECK;
 	USE_UINT32_ARG(8, blueMask, 0x0000FF00);
 	
 	FIBITMAP *output = FreeImage_ConvertFromRawBits(
-		(BYTE*)buffer,
+		reinterpret_cast<BYTE*>(buffer),
 		width, height,
 		pitch, bpp,
 		redMask, greenMask, blueMask
@@ -172,7 +190,8 @@ void Image::init(V8_VAR_OBJ target) {
 	Nan::SetPrototypeMethod(proto, "destroy", destroy);
 	
 	Nan::SetPrototypeMethod(proto, "save", save);
-	Nan::SetPrototypeMethod(proto, "load", load);
+	Nan::SetPrototypeMethod(proto, "_load", load);
+	Nan::SetPrototypeMethod(proto, "_unload", unload);
 	
 	// -------- static
 	

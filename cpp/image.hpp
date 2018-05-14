@@ -30,6 +30,7 @@ protected:
 	static NAN_GETTER(heightGetter);
 	
 	static NAN_METHOD(load);
+	static NAN_METHOD(unload);
 	static NAN_METHOD(save);
 	
 	~Image();

@@ -14,16 +14,13 @@ class JsImage extends Image {
 		
 		super();
 		
-		this._complete = false;
 		this._src = '';
 		this._isDataUri = false;
-		
-		this.on('load', err => {
-			this._complete = true;
-		});
+		this._data = null;
 		
 		this.on('error', err => {
-			this._complete = false;
+			this._data = null;
+			this._error = err;
 			console.error('Image Error:', err);
 		});
 		
@@ -38,24 +35,32 @@ class JsImage extends Image {
 		this.on(type, cb.bind(this));
 	}
 	
+	
 	on(name, cb) {
+		
 		super.on(name, cb);
-		if (name === 'load' && this._complete) {
+		
+		if (name === 'load' && this._data) {
 			cb.call(this);
 		}
+		
 	}
+	
 	
 	once(name, cb) {
-		super.once(name, cb);
-		if (name === 'load' && this._complete) {
+		
+		if (name === 'load' && this._data) {
 			cb.call(this);
+		} else {
+			super.once(name, cb);
 		}
+		
 	}
 	
 	
-	get complete() { return this._complete; }
+	get complete() { return this._data !== null; }
 	
-	get data() { return this._complete ? this.data : null; }
+	get data() { return this._data; }
 	
 	
 	get naturalWidth() { return this.width; }
@@ -69,14 +74,22 @@ class JsImage extends Image {
 	
 	set src(v) {
 		
+		// The same - do nothing
 		if (v === this._src) {
-			this.emit('load');
 			return;
 		}
 		
-		this._complete = false;
+		
+		this._error = null;
+		this._data = null;
 		this._src = v;
 		this._isDataUri = false;
+		
+		
+		// Empty - do nothing
+		if ( ! this._src ) {
+			return this._unload();
+		}
 		
 		
 		// Data URI
@@ -84,9 +97,9 @@ class JsImage extends Image {
 			
 			this._isDataUri = true;
 			const [head, body] = this._src.split(',');
-			const isBase64 = head.indexOf('base64') > -1
+			const isBase64 = head.indexOf('base64') > -1;
 			const data = isBase64 ? Buffer.from(body, 'base64') : Buffer.from(unescape(body));
-			this.load(data);
+			this._load(data);
 			return;
 			
 		}
@@ -96,7 +109,7 @@ class JsImage extends Image {
 		if (/^https?:\/\//i.test(this._src)) {
 			
 			download(this._src).then(
-				data => this.load(data),
+				data => this._load(data),
 				err => this.emit('error', err)
 			);
 			
@@ -110,7 +123,7 @@ class JsImage extends Image {
 			if (err) {
 				return this.emit('error', err);
 			}
-			this.load(data);
+			this._load(data);
 		});
 		
 	}
@@ -124,9 +137,25 @@ class JsImage extends Image {
 	
 	
 	[util.inspect.custom]() { return this.toString(); }
+	
 	toString() {
+		
+		if ( ! this.src ) {
+			return 'Image { EMPTY }';
+		}
+		
 		const src = this._isDataUri ? `${this.src.slice(0, 32)}...` : this.src;
+		
+		if (this._error ) {
+			return `Image { ERROR, ${src} }`;
+		}
+		
+		if ( ! this._data ) {
+			return `Image { LOADING, ${src} }`;
+		}
+		
 		return `Image { ${this.width}x${this.height} ${src} }`;
+		
 	}
 	
 }
