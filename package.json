@@ -1,7 +1,7 @@
 {
 	"author": "Luis Blanco <luisblanco1337@gmail.com>",
 	"name": "image-raub",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Native Image loader for Node.js",
 	"license": "MIT",
 	"main": "index.js",
