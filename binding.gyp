@@ -15,7 +15,7 @@
 				'action_name' : 'Show dir.',
 				'inputs'      : [],
 				'outputs'     : ['js'],
-				'action': ['ls', '<(freeimage_bin)']
+				'action': ['echo', '<(freeimage_bin)']
 			}],
 		},
 		{
