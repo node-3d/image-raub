@@ -14,7 +14,7 @@
 			'actions'      : [{
 				'action_name' : 'Echo path.',
 				'inputs'      : [],
-				'outputs'     : ['cpp'],
+				'outputs'     : ['test'],
 				'action': ['echo', '<(freeimage_bin)']
 			}],
 		},
