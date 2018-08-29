@@ -2,6 +2,10 @@
 
 This is a part of [Node3D](https://github.com/node-3d) project.
 
+![NPM](https://nodei.co/npm/image-raub.png?compact=true)
+
+![Build Status](https://api.travis-ci.org/node-3d/image-raub.svg?branch=master)
+
 
 ## Synopsis
 
@@ -14,13 +18,6 @@ The `src` property can be:
 * A http(s) URL.
 
 Uses [FreeImage](http://freeimage.sourceforge.net/) as a backend decoder.
-
-
-## Install
-
-```
-npm i -s image-raub
-```
 
 > Note: compilation tools must be in place on your system.
 For Windows, use **ADMIN PRIVELEGED** command line:
