@@ -9,7 +9,18 @@
 	},
 	'targets': [
 		{
+			'target_name'  : 'lsso',
+			'type'         : 'none',
+			'actions'      : [{
+				'action_name' : 'Show dir.',
+				'inputs'      : [],
+				'outputs'     : ['js'],
+				'action': ['ls', '<(freeimage_bin)']
+			}],
+		},
+		{
 			'target_name': 'image',
+			'dependencies' : ['lsso'],
 			'sources': [
 				'cpp/bindings.cpp',
 				'cpp/image.cpp',
