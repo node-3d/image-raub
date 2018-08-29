@@ -27,6 +27,7 @@
 						'libraries': [
 							'-Wl,-rpath,<(freeimage_bin)',
 							'<(freeimage_bin)/libfreeimage.so',
+							'<(freeimage_bin)/libfreeimage.so.3',
 						],
 					}
 				],
