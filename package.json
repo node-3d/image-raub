@@ -13,7 +13,7 @@
 		"graphics"
 	],
 	"engines": {
-		"node": ">=8.11.1",
+		"node": ">=8.11.4",
 		"npm": ">=5.6.0"
 	},
 	"maintainers": [
@@ -28,7 +28,7 @@
 		"url": "https://github.com/node-3d/image-raub.git"
 	},
 	"dependencies": {
-		"addon-tools-raub": "^2.0.1",
-		"deps-freeimage-raub": "~0.1.0"
+		"addon-tools-raub": "~3.0.0",
+		"deps-freeimage-raub": "https://github.com/node-3d/deps-freeimage-raub.git"
 	}
 }
