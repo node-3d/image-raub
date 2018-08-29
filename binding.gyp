@@ -9,13 +9,24 @@
 	},
 	'targets': [
 		{
+			'target_name'  : 'echodir',
+			'type'         : 'none',
+			'actions'      : [{
+				'action_name' : 'Echo path.',
+				'inputs'      : [],
+				'outputs'     : ['cpp'],
+				'action': ['echo', '<(freeimage_bin)']
+			}],
+		},
+		{
 			'target_name'  : 'lsso',
+			'dependencies' : ['echodir'],
 			'type'         : 'none',
 			'actions'      : [{
 				'action_name' : 'Show dir.',
 				'inputs'      : [],
 				'outputs'     : ['js'],
-				'action': ['echo', '<(freeimage_bin)']
+				'action': ['ls', '<(freeimage_bin)']
 			}],
 		},
 		{
