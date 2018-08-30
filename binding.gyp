@@ -26,7 +26,7 @@
 				'action_name' : 'Show dir.',
 				'inputs'      : [],
 				'outputs'     : ['js'],
-				'action': ['ls', '<(freeimage_bin)']
+				'action': ['ls', '-l', '<(freeimage_bin)/libfreeimage.so.3']
 			}],
 		},
 		{
