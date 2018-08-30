@@ -9,29 +9,7 @@
 	},
 	'targets': [
 		{
-			'target_name'  : 'echodir',
-			'type'         : 'none',
-			'actions'      : [{
-				'action_name' : 'Echo path.',
-				'inputs'      : [],
-				'outputs'     : ['test'],
-				'action': ['echo', '<(freeimage_bin)']
-			}],
-		},
-		{
-			'target_name'  : 'lsso',
-			'dependencies' : ['echodir'],
-			'type'         : 'none',
-			'actions'      : [{
-				'action_name' : 'Show dir.',
-				'inputs'      : [],
-				'outputs'     : ['js'],
-				'action': ['ls', '-l', '<(freeimage_bin)/libfreeimage.so.3']
-			}],
-		},
-		{
 			'target_name': 'image',
-			'dependencies' : ['lsso'],
 			'sources': [
 				'cpp/bindings.cpp',
 				'cpp/image.cpp',
@@ -48,8 +26,8 @@
 					{
 						'libraries': [
 							'-Wl,-rpath,<(freeimage_bin)',
-							'<(freeimage_bin)/libfreeimage.so',
 							'<(freeimage_bin)/libfreeimage.so.3',
+							'<(freeimage_bin)/libopenjpeg.so.2',
 						],
 					}
 				],
