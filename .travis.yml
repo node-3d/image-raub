@@ -28,9 +28,6 @@ before_install:
 
 install:
   - npm i --clang=1
-  - cd node_modules/deps-freeimage-raub/bin-linux64
-  - ls
-  - cd ../../..
   - cd test && npm i --clang=1
   - cd ..
 
