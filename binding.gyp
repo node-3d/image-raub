@@ -26,9 +26,9 @@
 					{
 						'libraries': [
 							'-Wl,-rpath,<(freeimage_bin)',
-							'libfreeimage.so.3',
-							'libopenjpeg.so.2',
-							'libraw.so.9',
+							'<(freeimage_bin)/libfreeimage.so.3',
+							'<(freeimage_bin)/libopenjpeg.so.2',
+							'<(freeimage_bin)/libraw.so.9',
 						],
 					}
 				],
