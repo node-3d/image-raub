@@ -6,6 +6,8 @@ This is a part of [Node3D](https://github.com/node-3d) project.
 
 ![Build Status](https://api.travis-ci.org/node-3d/image-raub.svg?branch=master)
 
+> npm i -s image-raub
+
 
 ## Synopsis
 
