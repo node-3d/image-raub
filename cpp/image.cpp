@@ -128,34 +128,114 @@ NAN_METHOD(Image::save) { THIS_IMAGE; THIS_CHECK;
 	
 	FREE_IMAGE_FORMAT format = FreeImage_GetFIFFromFilename(*dest);
 	
-	void *buffer = Buffer::Data(info[1]);
+	if ( ! image->_bitmap ) {
+		return;
+	}
 	
-	REQ_UINT32_ARG(2, width);
-	REQ_UINT32_ARG(3, height);
-	
-	USE_UINT32_ARG(4, pitch, width * 4);
-	USE_UINT32_ARG(5, bpp, 32);
-	USE_UINT32_ARG(6, redMask, 0xFF000000);
-	USE_UINT32_ARG(7, greenMask, 0x00FF0000);
-	USE_UINT32_ARG(8, blueMask, 0x0000FF00);
-	
-	FIBITMAP *output = FreeImage_ConvertFromRawBits(
-		reinterpret_cast<BYTE*>(buffer),
-		width, height,
-		pitch, bpp,
-		redMask, greenMask, blueMask
-	);
+	FIBITMAP *output = image->_bitmap;
+	unsigned bpp = FreeImage_GetBPP(output);
 	
 	if (format == FIF_JPEG && bpp != 24) {
-		FIBITMAP *old = output;
 		output = FreeImage_ConvertTo24Bits(output);
-		FreeImage_Unload(old);
 	}
 	
 	bool ret = FreeImage_Save(format, output, *dest) == 1;
-	FreeImage_Unload(output);
+	
+	if (format == FIF_JPEG && bpp != 24) {
+		FreeImage_Unload(output);
+	}
 	
 	RET_VALUE(Nan::New<Boolean>(ret));
+	
+}
+
+
+
+// https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage
+
+// FIBITMAP *FreeImage_RescaleRect(
+// 	FIBITMAP *dib, int dWidth, int dHeight,
+// 	int sx, int sy, int sx1, int sx2,
+// 	FREE_IMAGE_FILTER filter FI_DEFAULT(FILTER_CATMULLROM), unsigned flags FI_DEFAULT(0)
+// );
+
+NAN_METHOD(Image::drawImage) { THIS_IMAGE; THIS_CHECK;
+	
+	REQ_OBJ_ARG(0, _src);
+	Image *src = ObjectWrap::Unwrap<Image>(_src);
+	
+	if ( ! src->_bitmap ) {
+		return;
+	}
+	
+	LET_UINT32_ARG(1, arg1);
+	LET_UINT32_ARG(2, arg2);
+	LET_UINT32_ARG(3, arg3);
+	LET_UINT32_ARG(4, arg4);
+	// LET_UINT32_ARG(5, arg5);
+	// LET_UINT32_ARG(6, arg6);
+	LET_UINT32_ARG(7, arg7);
+	LET_UINT32_ARG(8, arg8);
+	
+	unsigned sx = 0;
+	unsigned sy = 0;
+	unsigned dx = 0;
+	unsigned dy = 0;
+	unsigned sWidth = FreeImage_GetWidth(src->_bitmap);
+	unsigned sHeight = FreeImage_GetHeight(src->_bitmap);
+	
+	unsigned dWidth;
+	unsigned dHeight;
+	
+	if (info.Length() == 3) {
+		// drawImage(image, dx, dy);
+		dWidth = sWidth;
+		dHeight = sHeight;
+	} else if (info.Length() == 5) {
+		// drawImage(image, dx, dy, dWidth, dHeight);
+		dWidth = arg3;
+		dHeight = arg4;
+	} else if (info.Length() == 9) {
+		// drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
+		sx = arg1;
+		sy = arg2;
+		sWidth = arg3;
+		sHeight = arg4;
+		dWidth = arg7;
+		dHeight = arg8;
+	} else {
+		return;
+	}
+	
+	FIBITMAP *result = FreeImage_RescaleRect(
+		src->_bitmap, dWidth, dHeight, sx, sy, sx + sWidth, sy + sHeight
+	);
+	
+	if (image->_bitmap) {
+		FreeImage_Unload(image->_bitmap);
+	}
+	
+	image->_bitmap = result;
+	
+	// ---------- TODO: DRY
+	// adjust internal fields
+	size_t num_pixels = FreeImage_GetWidth(image->_bitmap) * FreeImage_GetHeight(image->_bitmap);
+	BYTE *pixels = FreeImage_GetBits(image->_bitmap);
+	int num_bytes = static_cast<int>(num_pixels * 4);
+	
+	// FreeImage stores data in BGR. Convert from BGR to RGB.
+	for (size_t i = 0; i < num_pixels; i++) {
+		size_t i4 = i << 2;
+		BYTE temp = pixels[i4 + 0];
+		pixels[i4 + 0] = pixels[i4 + 2];
+		pixels[i4 + 2] = temp;
+	}
+	
+	V8_VAR_OBJ buffer = Nan::NewBuffer(num_bytes).ToLocalChecked();
+	
+	memcpy(Buffer::Data(buffer), pixels, num_bytes);
+	
+	Nan::Set(info.This(), JS_STR("_data"), buffer);
 	
 }
 

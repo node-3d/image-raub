@@ -7,14 +7,16 @@ const Image = require('image-raub');
 
 const TEST_IMAGE_WIDTH = 283;
 const TEST_IMAGE_HEIGHT = 71;
+const TEST_STRETCH_WIDTH = 512;
+const TEST_STRETCH_HEIGHT = 128;
 const TEST_IMAGE_LENGTH = 80372;
 
 const props = [
-	'complete','width','height','naturalWidth','naturalHeight',
-	'wh','size','src','onerror','onload',
+	'complete', 'width', 'height', 'naturalWidth', 'naturalHeight', 
+	'wh', 'size', 'src', 'onerror', 'onload',
 ];
 
-const methods = ['on','save'];
+const methods = ['on', 'save', 'load', 'drawImage'];
 
 
 describe('Image', () => {
@@ -247,6 +249,27 @@ describe('Image', () => {
 		
 		expect(image.complete).to.be.equal(false);
 		expect(status).to.be.equal('truefalse');
+		
+	});
+	
+	
+	it('can draw a stretched image', async () => {
+		
+		const src = new Image();
+		src.src = `${__dirname}/freeimage.jpg`;
+		
+		let status = '';
+		
+		await new Promise((res, rej) => {
+			src.once('load', res);
+			src.once('error', rej);
+		});
+		
+		const dest = new Image();
+		dest.drawImage(src, 0, 0, src.width, src.height, 0, 0, TEST_STRETCH_WIDTH, TEST_STRETCH_HEIGHT);
+		
+		expect(dest.width).to.be.equal(TEST_STRETCH_WIDTH);
+		expect(dest.height).to.be.equal(TEST_STRETCH_HEIGHT);
 		
 	});
 	

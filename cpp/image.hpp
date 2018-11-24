@@ -33,6 +33,8 @@ protected:
 	static NAN_METHOD(unload);
 	static NAN_METHOD(save);
 	
+	static NAN_METHOD(drawImage);
+	
 	~Image();
 	
 	
