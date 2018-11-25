@@ -150,15 +150,7 @@ NAN_METHOD(Image::save) { THIS_IMAGE; THIS_CHECK;
 }
 
 
-
 // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage
-
-// FIBITMAP *FreeImage_RescaleRect(
-// 	FIBITMAP *dib, int dWidth, int dHeight,
-// 	int sx, int sy, int sx1, int sx2,
-// 	FREE_IMAGE_FILTER filter FI_DEFAULT(FILTER_CATMULLROM), unsigned flags FI_DEFAULT(0)
-// );
-
 NAN_METHOD(Image::drawImage) { THIS_IMAGE; THIS_CHECK;
 	
 	REQ_OBJ_ARG(0, _src);

@@ -14,12 +14,20 @@ This is a part of [Node3D](https://github.com/node-3d) project.
 **Node.js** addon implementing the
 [HTMLImageElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/Image).
 
+
 The `src` property can be:
 * A local file.
 * A data URI.
 * A http(s) URL.
 
+
 Uses [FreeImage](http://freeimage.sourceforge.net/) as a backend decoder.
+
+
+Additional features include:
+* Ability to save the image.
+* Some context 2d functionality, e.g. `drawImage`.
+
 
 > Note: compilation tools must be in place on your system.
 For Windows, use **ADMIN PRIVELEGED** command line:
@@ -68,7 +76,10 @@ contain the dimensions.
 
 * `addEventListener|on(string type, function cb)` - listen for Image events.
 * `once(string type, function cb)` - listen for one Image event.
-* `save(string dest, number ?w, number ?h)` - save Image to file. Resize to `w, h` is optional.
+* `save(string dest)` - save Image to file. Resize to `w, h` is optional.
+* `drawImage(src, ...)` - refer to
+[drawImage](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage),
+but optional params `dx, dy` are ignored.
 
 
 ### Events:
