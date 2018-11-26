@@ -15,14 +15,9 @@ addons:
       - g++-6
 
 
-env:
-  - CC=gcc-6
-  - CXX=g++-6
-
-
 before_install:
-  - gcc -v
-  - g++ -v
+  - export CXX="gcc-6"
+  - export CC="g++-6"
   - npm conf set strict-ssl false
   - npm install -g npm@6.4.1
 
