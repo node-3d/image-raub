@@ -15,11 +15,12 @@ addons:
       - g++-6
 
 
+env:
+  - GCC_EVAL="CC=gcc-6 && CXX=g++-6"
+
+
 before_install:
-  - ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
-  - ln -s /usr/bin/g++-6 /usr/local/bin/g++
-  - export CC=/usr/bin/gcc-6
-  - export CXX=/usr/bin/g++-6
+  - eval "${GCC_EVAL}"
   - gcc -v && g++ -v && cmake --version
   - npm conf set strict-ssl false
   - npm install -g npm@6.4.1
