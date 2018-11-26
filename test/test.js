@@ -16,7 +16,7 @@ const props = [
 	'wh', 'size', 'src', 'onerror', 'onload',
 ];
 
-const methods = ['on', 'save', 'load', 'drawImage'];
+const methods = ['on', 'save', 'drawImage'];
 
 
 describe('Image', () => {

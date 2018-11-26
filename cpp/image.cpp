@@ -264,6 +264,7 @@ void Image::init(V8_VAR_OBJ target) {
 	Nan::SetPrototypeMethod(proto, "save", save);
 	Nan::SetPrototypeMethod(proto, "_load", load);
 	Nan::SetPrototypeMethod(proto, "_unload", unload);
+	Nan::SetPrototypeMethod(proto, "drawImage", drawImage);
 	
 	// -------- static
 	
