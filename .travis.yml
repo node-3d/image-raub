@@ -12,12 +12,15 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      - g++-7
+      - g++-6
 
 
 before_install:
-  - CC=gcc-7
-  - CXX=g++-7
+  - ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
+  - ln -s /usr/bin/g++-6 /usr/local/bin/g++
+  - export CC=/usr/bin/gcc-6
+  - export CXX=/usr/bin/g++-6
+  - gcc -v && g++ -v && cmake --version
   - npm conf set strict-ssl false
   - npm install -g npm@6.4.1
 
