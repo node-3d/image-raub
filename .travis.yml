@@ -11,9 +11,13 @@ addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
+    packages:
+      - g++-7
 
 
 before_install:
+  - CC=gcc-7
+  - CXX=g++-7
   - npm conf set strict-ssl false
   - npm install -g npm@6.4.1
 
