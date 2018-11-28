@@ -27,8 +27,6 @@
 						'libraries': [
 							'-Wl,-rpath,<(freeimage_bin)',
 							'<(freeimage_bin)/libfreeimage.so.3',
-							'<(freeimage_bin)/libopenjpeg.so.2',
-							'<(freeimage_bin)/libraw.so.9',
 							'<(freeimage_bin)/libm.so.6',
 						],
 					}
