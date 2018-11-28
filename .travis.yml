@@ -20,6 +20,7 @@ before_install:
   - export CC="g++-6"
   - npm conf set strict-ssl false
   - npm install -g npm@6.4.1
+  - echo $PATH
 
 
 install:
