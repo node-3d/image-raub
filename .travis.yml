@@ -13,6 +13,7 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - g++-6
+      - libfreeimage3
 
 
 before_install:
