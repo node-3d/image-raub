@@ -12,7 +12,7 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      - libfreeimage3
+      - libfreeimage3=3.17.0+ds1-2
 
 
 before_install:
