@@ -13,7 +13,7 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - g++-6
-      - libfreeimage3
+      - libfreeimage3=3.17.0+ds1-5build3
 
 
 before_install:
@@ -21,8 +21,6 @@ before_install:
   - export CC="g++-6"
   - npm conf set strict-ssl false
   - npm install -g npm@6.4.1
-  - echo $PATH
-  - echo $LD_LIBRARY_PATH
 
 
 install:
@@ -32,8 +30,6 @@ install:
 
 
 script:
-  - export PATH=./node_modules/deps-freeimage-raub/bin-linux64:$PATH
-  - export LD_LIBRARY_PATH=./node_modules/deps-freeimage-raub/bin-linux64:$LD_LIBRARY_PATH
   - cd test
   - npm test
   - cd ..
