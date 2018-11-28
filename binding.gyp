@@ -21,16 +21,15 @@
 			],
 			'library_dirs': [ '<(freeimage_bin)' ],
 			'conditions': [
-				# [
-				# 	'OS=="linux"',
-				# 	{
-				# 		'libraries': [
-				# 			'-lfreeimage',
-				# 			# '-Wl,-rpath,<(freeimage_bin)',
-				# 			# '<(freeimage_bin)/libfreeimage.so.3',
-				# 		],
-				# 	}
-				# ],
+				[
+					'OS=="linux"',
+					{
+						'libraries': [
+							'-Wl,-rpath,<(freeimage_bin)',
+							'<(freeimage_bin)/libfreeimage.so.3',
+						],
+					}
+				],
 				[
 					'OS=="mac"',
 					{
