@@ -30,4 +30,3 @@ script:
   - cd test
   - npm test
   - cd ..
-  
