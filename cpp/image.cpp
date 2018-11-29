@@ -171,8 +171,8 @@ NAN_METHOD(Image::drawImage) { THIS_IMAGE; THIS_CHECK;
 	
 	unsigned sx = 0;
 	unsigned sy = 0;
-	unsigned dx = 0;
-	unsigned dy = 0;
+	// unsigned dx = 0;
+	// unsigned dy = 0;
 	unsigned sWidth = FreeImage_GetWidth(src->_bitmap);
 	unsigned sHeight = FreeImage_GetHeight(src->_bitmap);
 	
@@ -210,18 +210,21 @@ NAN_METHOD(Image::drawImage) { THIS_IMAGE; THIS_CHECK;
 	image->_bitmap = result;
 	
 	// ---------- TODO: DRY
+	
 	// adjust internal fields
 	size_t num_pixels = FreeImage_GetWidth(image->_bitmap) * FreeImage_GetHeight(image->_bitmap);
 	BYTE *pixels = FreeImage_GetBits(image->_bitmap);
 	int num_bytes = static_cast<int>(num_pixels * 4);
 	
-	// FreeImage stores data in BGR. Convert from BGR to RGB.
-	for (size_t i = 0; i < num_pixels; i++) {
-		size_t i4 = i << 2;
-		BYTE temp = pixels[i4 + 0];
-		pixels[i4 + 0] = pixels[i4 + 2];
-		pixels[i4 + 2] = temp;
-	}
+	// ---------- TODO: UNSURE what happens to BGR above
+	
+	// // FreeImage stores data in BGR. Convert from BGR to RGB.
+	// for (size_t i = 0; i < num_pixels; i++) {
+	// 	size_t i4 = i << 2;
+	// 	BYTE temp = pixels[i4 + 0];
+	// 	pixels[i4 + 0] = pixels[i4 + 2];
+	// 	pixels[i4 + 2] = temp;
+	// }
 	
 	V8_VAR_OBJ buffer = Nan::NewBuffer(num_bytes).ToLocalChecked();
 	
