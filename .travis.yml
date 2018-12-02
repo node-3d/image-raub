@@ -20,8 +20,8 @@ before_install:
 
 
 script:
-  - 
   - cd test
   - npm i
+  - otool -hV node_modules/deps-freeimage-raub/bin-mac64/freeimage.dylib || echo hi
   - npm test
   - cd ..
