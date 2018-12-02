@@ -18,14 +18,11 @@ before_install:
   - npm conf set strict-ssl false
   - npm install -g npm@6.4.1
 
-
-script:
+install:
   - cd test
   - npm i
-  - ls
-  - ls node_modules || echo NO
-  - ls node_modules/deps-freeimage-raub || echo NO
-  - ls node_modules/deps-freeimage-raub/bin-mac64 || echo NO
+
+script:
   - otool -hV node_modules/deps-freeimage-raub/bin-mac64/libfreeimage-3.17.0.dylib-x86_64 || echo NO
   - export DYLIB_INSTALL_NAME_BASE=@rpath
   - npm test
