@@ -34,8 +34,7 @@
 					'OS=="mac"',
 					{
 						'libraries': [
-							'-Wl,-rpath,<(freeimage_bin)',
-							'<(freeimage_bin)/freeimage.dylib',
+							'-dylib_file <(freeimage_bin)/freeimage.dylib',
 						],
 					}
 				],
