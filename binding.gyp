@@ -34,7 +34,7 @@
 					'OS=="mac"',
 					{
 						'libraries': [
-							'-dylib_file <(freeimage_bin)/freeimage.dylib',
+							'-dylib_file libfreeimage.dylib:<(freeimage_bin)/freeimage.dylib',
 						],
 					}
 				],
