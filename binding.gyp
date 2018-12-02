@@ -35,6 +35,7 @@
 					{
 						'libraries': [
 							'-dylib_file libfreeimage.dylib:<(freeimage_bin)/freeimage.dylib',
+							'<(freeimage_bin)/freeimage.dylib',
 						],
 					}
 				],
