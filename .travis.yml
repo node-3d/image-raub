@@ -20,8 +20,5 @@ install:
 
 
 script:
-  - otool -hV node_modules/deps-freeimage-raub/bin-mac64/libfreeimage-3.17.0.dylib-x86_64 || echo NO
-  - export LD_LIBRARY_PATH=node_modules/deps-freeimage-raub/bin-mac64
-  - export DYLD_LIBRARY_PATH=node_modules/deps-freeimage-raub/bin-mac64
   - npm test
   - cd ..
