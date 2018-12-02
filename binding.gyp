@@ -35,8 +35,8 @@
 					{
 						'libraries': [
 							'-Wl,-rpath,<(freeimage_bin)',
-							'-dylib_file libfreeimage-3.17.0.dylib-x86_64:<(freeimage_bin)/libfreeimage-3.17.0.dylib-x86_64',
-							'<(freeimage_bin)/libfreeimage-3.17.0.dylib-x86_64',
+							# '-dylib_file libfreeimage-3.17.0.dylib-x86_64:<(freeimage_bin)/libfreeimage-3.17.0.dylib-x86_64',
+							'<(freeimage_bin)/freeimage.dylib',
 						],
 						'xcode_settings': {
 							'DYLIB_INSTALL_NAME_BASE': '@rpath',
