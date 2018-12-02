@@ -23,7 +23,6 @@ install:
   - npm i
 
 script:
-  - otool -hV node_modules/deps-freeimage-raub/bin-mac64/libfreeimage-3.17.0.dylib-x86_64 || echo NO
-  - export DYLIB_INSTALL_NAME_BASE=@rpath
+  - otool -hV node_modules/deps-freeimage-raub/bin-mac64/freeimage.dylib || echo NO
   - npm test
   - cd ..
