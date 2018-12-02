@@ -21,4 +21,3 @@ install:
 
 script:
   - npm test
-  - cd ..
