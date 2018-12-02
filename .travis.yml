@@ -14,13 +14,10 @@ matrix:
     os: osx
 
 
-before_install:
-  - npm conf set strict-ssl false
-  - npm install -g npm@6.4.1
-
 install:
   - cd test
   - npm i
+
 
 script:
   - otool -hV node_modules/deps-freeimage-raub/bin-mac64/freeimage.dylib || echo NO
