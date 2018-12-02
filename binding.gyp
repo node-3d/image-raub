@@ -37,7 +37,7 @@
 							'-Wl,-rpath,<(freeimage_bin)',
 							# '-dylib_file libfreeimage.dylib:<(freeimage_bin)/libfreeimage-3.17.0.dylib-x86_64',
 							# '-dylib_file libfreeimage-3.17.0.dylib-x86_64:<(freeimage_bin)/libfreeimage-3.17.0.dylib-x86_64',
-							'<(freeimage_bin)/libfreeimage-3.17.0.dylib-x86_64',
+							'libfreeimage-3.17.0.dylib-x86_64',
 						],
 					}
 				],

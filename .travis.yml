@@ -6,10 +6,10 @@ node_js:
 
 matrix:
   include:
-  - name: "Linux"
-    os: linux
-    dist: xenial
-    sudo: false
+  # - name: "Linux"
+  #   os: linux
+  #   dist: xenial
+  #   sudo: false
   - name: "MacOS"
     os: osx
 
@@ -27,5 +27,6 @@ script:
   - ls node_modules/deps-freeimage-raub || echo NO
   - ls node_modules/deps-freeimage-raub/bin-mac64 || echo NO
   - otool -hV node_modules/deps-freeimage-raub/bin-mac64/libfreeimage-3.17.0.dylib-x86_64 || echo NO
+  - export DYLIB_INSTALL_NAME_BASE=@rpath
   - npm test
   - cd ..
