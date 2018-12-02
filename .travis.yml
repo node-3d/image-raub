@@ -26,6 +26,6 @@ script:
   - ls node_modules || echo NO
   - ls node_modules/deps-freeimage-raub || echo NO
   - ls node_modules/deps-freeimage-raub/bin-mac64 || echo NO
-  - otool -hV node_modules/deps-freeimage-raub/bin-mac64/freeimage_flat.dylib || echo NO
+  - otool -hV node_modules/deps-freeimage-raub/bin-mac64/libfreeimage-3.17.0.dylib-x86_64 || echo NO
   - npm test
   - cd ..
