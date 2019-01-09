@@ -12,6 +12,8 @@ matrix:
     sudo: false
   - name: "MacOS"
     os: osx
+  - name: "Windows"
+    os: windows
 
 
 install:

@@ -5,7 +5,6 @@ const { Writable } = require('stream');
 const CHUNK_SIZE = 1024;
 const INITIAL_SIZE = 8 * CHUNK_SIZE;
 const INCREMENT_SIZE = 8 * CHUNK_SIZE;
-const FREQUENCY = 1;
 
 
 class WritableBuffer extends Writable {
