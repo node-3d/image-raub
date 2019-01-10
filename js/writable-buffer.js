@@ -34,7 +34,7 @@ class WritableBuffer extends Writable {
 	
 	_increaseAsNeeded(incomingSize) {
 		
-		if( (this._buffer.length - this._size) >= incomingSize ) {
+		if ( (this._buffer.length - this._size) >= incomingSize ) {
 			return;
 		}
 		
@@ -60,6 +60,6 @@ class WritableBuffer extends Writable {
 		
 	}
 	
-};
+}
 
 module.exports = WritableBuffer;

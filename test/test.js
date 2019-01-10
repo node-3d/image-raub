@@ -12,7 +12,7 @@ const TEST_STRETCH_HEIGHT = 128;
 const TEST_IMAGE_LENGTH = 80372;
 
 const props = [
-	'complete', 'width', 'height', 'naturalWidth', 'naturalHeight', 
+	'complete', 'width', 'height', 'naturalWidth', 'naturalHeight',
 	'wh', 'size', 'src', 'onerror', 'onload',
 ];
 
@@ -257,8 +257,6 @@ describe('Image', () => {
 		
 		const src = new Image();
 		src.src = `${__dirname}/freeimage.jpg`;
-		
-		let status = '';
 		
 		await new Promise((res, rej) => {
 			src.once('load', res);
