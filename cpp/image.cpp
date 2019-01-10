@@ -128,7 +128,7 @@ NAN_METHOD(Image::save) { THIS_IMAGE; THIS_CHECK;
 	
 	FREE_IMAGE_FORMAT format = FreeImage_GetFIFFromFilename(*dest);
 	
-	if (! image->_bitmap) {
+	if ( ! image->_bitmap ) {
 		return;
 	}
 	
@@ -156,7 +156,7 @@ NAN_METHOD(Image::drawImage) { THIS_IMAGE; THIS_CHECK;
 	REQ_OBJ_ARG(0, _src);
 	Image *src = ObjectWrap::Unwrap<Image>(_src);
 	
-	if (! src->_bitmap) {
+	if ( ! src->_bitmap ) {
 		return;
 	}
 	
