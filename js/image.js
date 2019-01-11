@@ -41,10 +41,10 @@ class JsImage extends Image {
 		fakeBmp.writeUInt32LE(dibSize, pos);
 		pos += 4;
 		
-		fakeBmp.writeInt32LE(screen.w, pos);
+		fakeBmp.writeInt32LE(width, pos);
 		pos += 4;
 		
-		fakeBmp.writeInt32LE(screen.h, pos);
+		fakeBmp.writeInt32LE(height, pos);
 		pos += 4;
 		
 		fakeBmp.writeUInt16LE(1, pos);
