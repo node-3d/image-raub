@@ -2,9 +2,10 @@
 
 This is a part of [Node3D](https://github.com/node-3d) project.
 
-![NPM](https://nodei.co/npm/image-raub.png?compact=true)
+[![NPM](https://nodei.co/npm/image-raub.png?compact=true)](https://www.npmjs.com/package/image-raub)
 
-![Build Status](https://api.travis-ci.com/node-3d/image-raub.svg?branch=master)
+[![Build Status](https://api.travis-ci.com/node-3d/image-raub.svg?branch=master)](https://travis-ci.com/node-3d/image-raub)
+[![CodeFactor](https://www.codefactor.io/repository/github/node-3d/image-raub/badge)](https://www.codefactor.io/repository/github/node-3d/image-raub)
 
 > npm i -s image-raub
 
@@ -80,6 +81,10 @@ contain the dimensions.
 * `drawImage(src, ...)` - refer to
 [drawImage](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage),
 but optional params `dx, dy` are ignored.
+* `load(Buffer data)` - load from a file in memory.
+* `static fromPixels(uint width, uint height, uint bpp, Buffer pixels)` - create
+image from raw pixels. For example it helps when you want to store the result
+of `glReadPixels()` as image.
 
 
 ### Events:
