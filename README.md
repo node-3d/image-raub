@@ -38,6 +38,8 @@ Also **Windows** needs **vcredist 2013** to be installed.
 
 ## Usage
 
+### Load an OpenGL texture
+
 ```js
 const Image = require('image-raub');
 const image = new Image();
@@ -59,6 +61,28 @@ Here `Image` is used to load a texture. The constructed object receives `src` pr
 then the file is read and `'load'` event is emitted. After that, `image.data` is
 available as a `Buffer`, containing the whole pixel data, and `image.width`/`image.height`
 contain the dimensions.
+
+### Make an OpenGL snapshot
+
+```js
+const memSize = screen.w * screen.h * 4; // estimated number of bytes
+const storage = { data: Buffer.allocUnsafeSlow(memSize) };
+
+gl.readPixels(
+	0, 0,
+	screen.w, screen.h,
+	gl.RGBA,
+	gl.UNSIGNED_BYTE,
+	storage
+);
+
+const img = Image.fromPixels(screen.w, screen.h, 32, storage.data);
+
+img.save(`${Date.now()}.jpg`);
+```
+
+Image can save its current content to the filesystem. It can also load from raw
+pixel values using `static fromPixels()` method.
 
 
 ### Properties
