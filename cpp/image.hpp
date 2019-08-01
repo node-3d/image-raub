@@ -7,6 +7,29 @@
 #include <FreeImage.h>
 
 
+
+#include <napi.h>
+
+class MyObject : public Napi::ObjectWrap<MyObject> {
+ public:
+  static void init(Napi::Env env, Napi::Object exports);
+  MyObject(const Napi::CallbackInfo& info);
+
+ private:
+  static Napi::FunctionReference constructor;
+
+  Napi::Value GetValue(const Napi::CallbackInfo& info);
+  Napi::Value PlusOne(const Napi::CallbackInfo& info);
+  Napi::Value Multiply(const Napi::CallbackInfo& info);
+
+  double value_;
+
+	bool _isDestroyed;
+	
+	FIBITMAP *_bitmap;
+};
+
+
 class Image : public EventEmitter {
 	
 public:

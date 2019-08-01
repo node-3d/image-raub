@@ -1,23 +1,15 @@
-#include <cstdlib>
-
-#include <event-emitter.hpp>
+#include <napi.h>
 
 #include "image.hpp"
 
 
-extern "C" {
-
-
-NAN_MODULE_INIT(init) {
+Napi::Object init(Napi::Env env, Napi::Object exports) {
 	
-	EventEmitter::init(target);
+	Image::init(env, exports);
 	
-	Image::init(target);
+	return exports;
 	
 }
 
 
-NODE_MODULE(image, init);
-
-
-} // extern "C"
+NODE_API_MODULE(image, init)

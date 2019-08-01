@@ -239,9 +239,26 @@ NAN_METHOD(Image::drawImage) { THIS_IMAGE; THIS_CHECK;
 
 V8_STORE_FT Image::_protoImage;
 V8_STORE_FUNC Image::_ctorImage;
+Napi::FunctionReference MyObject::constructor;
 
+void Image::init(Napi::Env env, Napi::Object exports) {
+	
+	Napi::HandleScope scope(env);
 
-void Image::init(V8_VAR_OBJ target) {
+  Napi::Function func = DefineClass(env, "MyObject", {
+    InstanceMethod("plusOne", &MyObject::PlusOne),
+    InstanceMethod("value", &MyObject::GetValue),
+    InstanceMethod("multiply", &MyObject::Multiply)
+  });
+
+  constructor = Napi::Persistent(func);
+  constructor.SuppressDestruct();
+
+  exports.Set("MyObject", func);
+  return exports;
+	
+	
+	
 	
 	V8_VAR_FT proto = Nan::New<FunctionTemplate>(newCtor);
 	
