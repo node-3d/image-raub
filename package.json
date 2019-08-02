@@ -29,6 +29,7 @@
 	},
 	"dependencies": {
 		"addon-tools-raub": "4.2.0",
+		"node-addon-api": "1.7.1",
 		"deps-freeimage-raub": "1.1.1"
 	}
 }

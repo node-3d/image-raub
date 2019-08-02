@@ -5,69 +5,51 @@
 #include "image.hpp"
 
 
-using namespace v8;
-using namespace node;
+using namespace Napi;
 using namespace std;
 
 
 // ------ Aux macros
 
 #define THIS_IMAGE                                                            \
-	Image *image = ObjectWrap::Unwrap<Image>(info.This());
-	
+	NAPI_ENV;                                                                 \
+	Image *image = this;
+
 #define THIS_CHECK                                                            \
-	if (image->_isDestroyed) return;
-
-#define USE_UINT32_ARG(I, VAR, DEF)                                           \
-	CHECK_LET_ARG(I, IsUint32(), "uint32");                                   \
-	unsigned int VAR = IS_ARG_EMPTY(I) ? (DEF) : info[I]->Uint32Value();
-
-
-// ------ Constructor and Destructor
-
-Image::~Image() {
-	
-	_destroy();
-	
-}
-
-
-void Image::_destroy() { DES_CHECK;
-	
-	if (_bitmap) {
-		FreeImage_Unload(_bitmap);
-		_bitmap = nullptr;
-	}
-	
-	_isDestroyed = true;
-	
-	EventEmitter::_destroy();
-	
-}
+	if (image->_isDestroyed) return env.Undefined();
 
 
 // ------ Methods and props
 
-NAN_GETTER(Image::widthGetter) { THIS_IMAGE; THIS_CHECK;
+JS_GETTER(Image::_dataGetter) {
+	THIS_IMAGE;
+	THIS_CHECK;
 	
-	RET_VALUE(JS_INT(image->_bitmap ? FreeImage_GetWidth(image->_bitmap) : 0));
-	
-}
-
-
-NAN_GETTER(Image::heightGetter) { THIS_IMAGE; THIS_CHECK;
-	
-	RET_VALUE(JS_INT(image->_bitmap ? FreeImage_GetHeight(image->_bitmap) : 0));
+	return _data;
 	
 }
 
 
-NAN_METHOD(Image::load) { THIS_IMAGE; THIS_CHECK;
+JS_GETTER(Image::widthGetter) { THIS_IMAGE; THIS_CHECK;
 	
-	REQ_OBJ_ARG(0, file);
+	RET_NUM(image->_bitmap ? FreeImage_GetWidth(image->_bitmap) : 0);
 	
-	BYTE *bufferData = reinterpret_cast<BYTE*>(Buffer::Data(file));
-	size_t bufferLength = Buffer::Length(file);
+}
+
+
+JS_GETTER(Image::heightGetter) { THIS_IMAGE; THIS_CHECK;
+	
+	RET_NUM(image->_bitmap ? FreeImage_GetHeight(image->_bitmap) : 0);
+	
+}
+
+
+JS_METHOD(Image::load) { THIS_IMAGE; THIS_CHECK;
+	
+	REQ_BUF_ARG(0, file);
+	
+	BYTE *bufferData = reinterpret_cast<BYTE*>(file.Data());
+	size_t bufferLength = file.Length();
 	
 	FIMEMORY *memStream = FreeImage_OpenMemory(bufferData, bufferLength);
 	
@@ -85,7 +67,8 @@ NAN_METHOD(Image::load) { THIS_IMAGE; THIS_CHECK;
 	FreeImage_CloseMemory(memStream);
 	
 	// adjust internal fields
-	size_t num_pixels = FreeImage_GetWidth(image->_bitmap) * FreeImage_GetHeight(image->_bitmap);
+	size_t num_pixels = FreeImage_GetWidth(image->_bitmap) *
+		FreeImage_GetHeight(image->_bitmap);
 	BYTE *pixels = FreeImage_GetBits(image->_bitmap);
 	int num_bytes = static_cast<int>(num_pixels * 4);
 	
@@ -97,39 +80,41 @@ NAN_METHOD(Image::load) { THIS_IMAGE; THIS_CHECK;
 		pixels[i4 + 2] = temp;
 	}
 	
-	V8_VAR_OBJ buffer = Nan::NewBuffer(num_bytes).ToLocalChecked();
-	
-	memcpy(Buffer::Data(buffer), pixels, num_bytes);
-	
-	Nan::Set(info.This(), JS_STR("_data"), buffer);
+	Napi::Object buffer = Napi::Buffer<BYTE>::New(env, num_bytes);
+	memcpy(buffer.Data(), pixels, num_bytes);
+	_data = buffer;
 	
 	image->emit("load");
+	
+	return env.Undefined();
 	
 }
 
 
-NAN_METHOD(Image::unload) { THIS_IMAGE; THIS_CHECK;
+JS_METHOD(Image::unload) { THIS_IMAGE; THIS_CHECK;
 	
 	if (image->_bitmap) {
 		FreeImage_Unload(image->_bitmap);
 		image->_bitmap = nullptr;
 	}
 	
-	Nan::Set(info.This(), JS_STR("_data"), Nan::Null());
+	_data = env.Null();
 	
 	image->emit("load");
+	
+	return env.Undefined();
 	
 }
 
 
-NAN_METHOD(Image::save) { THIS_IMAGE; THIS_CHECK;
+JS_METHOD(Image::save) { THIS_IMAGE; THIS_CHECK;
 	
-	REQ_UTF8_ARG(0, dest)
+	REQ_STR_ARG(0, dest)
 	
-	FREE_IMAGE_FORMAT format = FreeImage_GetFIFFromFilename(*dest);
+	FREE_IMAGE_FORMAT format = FreeImage_GetFIFFromFilename(dest.data());
 	
 	if ( ! image->_bitmap ) {
-		return;
+		return RET_BOOL(false);
 	}
 	
 	FIBITMAP *output = image->_bitmap;
@@ -139,25 +124,25 @@ NAN_METHOD(Image::save) { THIS_IMAGE; THIS_CHECK;
 		output = FreeImage_ConvertTo24Bits(output);
 	}
 	
-	bool ret = FreeImage_Save(format, output, *dest) == 1;
+	bool ret = FreeImage_Save(format, output, dest.data()) == 1;
 	
 	if (format == FIF_JPEG && bpp != 24) {
 		FreeImage_Unload(output);
 	}
 	
-	RET_VALUE(Nan::New<Boolean>(ret));
+	RET_BOOL(ret);
 	
 }
 
 
 // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage
-NAN_METHOD(Image::drawImage) { THIS_IMAGE; THIS_CHECK;
+JS_METHOD(Image::drawImage) { THIS_IMAGE; THIS_CHECK;
 	
 	REQ_OBJ_ARG(0, _src);
-	Image *src = ObjectWrap::Unwrap<Image>(_src);
+	Image *src = Napi::ObjectWrap<Image>::Unwrap(_src);
 	
 	if ( ! src->_bitmap ) {
-		return;
+		return env.Undefined();
 	}
 	
 	LET_UINT32_ARG(1, arg1);
@@ -196,7 +181,7 @@ NAN_METHOD(Image::drawImage) { THIS_IMAGE; THIS_CHECK;
 		dWidth = arg7;
 		dHeight = arg8;
 	} else {
-		return;
+		return env.Undefined();
 	}
 	
 	FIBITMAP *result = FreeImage_RescaleRect(
@@ -226,97 +211,68 @@ NAN_METHOD(Image::drawImage) { THIS_IMAGE; THIS_CHECK;
 	// 	pixels[i4 + 2] = temp;
 	// }
 	
-	V8_VAR_OBJ buffer = Nan::NewBuffer(num_bytes).ToLocalChecked();
+	Napi::Object buffer = Napi::Buffer<BYTE>::New(env, num_bytes);
+	memcpy(buffer.Data(), pixels, num_bytes);
+	_data = buffer;
 	
-	memcpy(Buffer::Data(buffer), pixels, num_bytes);
-	
-	Nan::Set(info.This(), JS_STR("_data"), buffer);
+	return env.Undefined();
 	
 }
 
 
 // ------ System methods and props for ObjectWrap
 
-V8_STORE_FT Image::_protoImage;
-V8_STORE_FUNC Image::_ctorImage;
-Napi::FunctionReference MyObject::constructor;
+Napi::FunctionReference Image::_constructor;
 
 void Image::init(Napi::Env env, Napi::Object exports) {
 	
-	Napi::HandleScope scope(env);
-
-  Napi::Function func = DefineClass(env, "MyObject", {
-    InstanceMethod("plusOne", &MyObject::PlusOne),
-    InstanceMethod("value", &MyObject::GetValue),
-    InstanceMethod("multiply", &MyObject::Multiply)
-  });
-
-  constructor = Napi::Persistent(func);
-  constructor.SuppressDestruct();
-
-  exports.Set("MyObject", func);
-  return exports;
+	Napi::Function func = DefineClass(env, "Image", {
+		ACCESSOR_R(Image, isDestroyed),
+		ACCESSOR_R(Image, width),
+		ACCESSOR_R(Image, height),
+		ACCESSOR_M("destroy", &Image::destroy),
+		ACCESSOR_M("save", &Image::save),
+		ACCESSOR_M("_load", &Image::load),
+		ACCESSOR_M("_unload", &Image::unload),
+		ACCESSOR_M("drawImage", &Image::drawImage),
+	});
 	
+	_constructor = Napi::Persistent(func);
+	_constructor.SuppressDestruct();
 	
-	
-	
-	V8_VAR_FT proto = Nan::New<FunctionTemplate>(newCtor);
-	
-	// class Image inherits EventEmitter
-	V8_VAR_FT parent = Nan::New(EventEmitter::_protoEventEmitter);
-	proto->Inherit(parent);
-	
-	proto->InstanceTemplate()->SetInternalFieldCount(1);
-	proto->SetClassName(JS_STR("Image"));
-	
-	
-	// Accessors
-	V8_VAR_OT obj = proto->PrototypeTemplate();
-	ACCESSOR_R(obj, isDestroyed);
-	
-	ACCESSOR_R(obj, width);
-	ACCESSOR_R(obj, height);
-	
-	// -------- dynamic
-	
-	Nan::SetPrototypeMethod(proto, "destroy", destroy);
-	
-	Nan::SetPrototypeMethod(proto, "save", save);
-	Nan::SetPrototypeMethod(proto, "_load", load);
-	Nan::SetPrototypeMethod(proto, "_unload", unload);
-	Nan::SetPrototypeMethod(proto, "drawImage", drawImage);
-	
-	// -------- static
-	
-	V8_VAR_FUNC ctor = Nan::GetFunction(proto).ToLocalChecked();
-	
-	_protoImage.Reset(proto);
-	_ctorImage.Reset(ctor);
-	
-	Nan::Set(target, JS_STR("Image"), ctor);
-	
+	exports.Set("Image", func);
 	
 }
 
 
-bool Image::isImage(V8_VAR_OBJ obj) {
-	return Nan::New(_protoImage)->HasInstance(obj);
+bool Image::isImage(Napi::Object obj) {
+	return obj.InstanceOf(_constructor.Value());
+}
+
+Image::Image(const Napi::CallbackInfo &info): Napi::ObjectWrap<Image>(info) {
+	NAPI_ENV;
+	_data = env.Null();
+	_isDestroyed = false;
+	_bitmap = nullptr;
+}
+
+Image::~Image() {
+	_destroy();
 }
 
 
-NAN_METHOD(Image::newCtor) {
+void Image::_destroy() { DES_CHECK;
 	
-	CTOR_CHECK("Image");
+	if (_bitmap) {
+		FreeImage_Unload(_bitmap);
+		_bitmap = nullptr;
+	}
 	
-	Image *image = new Image();
-	image->Wrap(info.This());
-	
-	RET_VALUE(info.This());
+	_isDestroyed = true;
 	
 }
 
-
-NAN_METHOD(Image::destroy) { THIS_IMAGE; THIS_CHECK;
+JS_METHOD(Image::destroy) { THIS_IMAGE; THIS_CHECK;
 	
 	image->emit("destroy");
 	
@@ -325,7 +281,7 @@ NAN_METHOD(Image::destroy) { THIS_IMAGE; THIS_CHECK;
 }
 
 
-NAN_GETTER(Image::isDestroyedGetter) { THIS_IMAGE;
+JS_GETTER(Image::isDestroyedGetter) { THIS_IMAGE;
 	
 	RET_VALUE(JS_BOOL(image->_isDestroyed));
 	

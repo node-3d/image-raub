@@ -15,11 +15,14 @@
 				'cpp/image.cpp',
 			],
 			'include_dirs': [
-				'<!@(node -e "require(\'addon-tools-raub\').include()")',
 				'<(freeimage_include)',
-				'<(module_root_dir)/include',
+				'<(module_root_dir)/cpp',
+				'<!@(node -p "require(\'node-addon-api\').include")',
 			],
-			'library_dirs': [ '<(freeimage_bin)' ],
+			'cflags!': ['-fno-exceptions'],
+			'cflags_cc!': ['-fno-exceptions'],
+			'library_dirs': ['<(freeimage_bin)'],
+			'defines': ['NAPI_DISABLE_CPP_EXCEPTIONS'],
 			'conditions': [
 				[
 					'OS=="linux"',
@@ -45,7 +48,7 @@
 				[
 					'OS=="win"',
 					{
-						'libraries': [ 'FreeImage.lib' ],
+						'libraries': ['FreeImage.lib'],
 						'defines' : [
 							'WIN32_LEAN_AND_MEAN',
 							'VC_EXTRALEAN'
