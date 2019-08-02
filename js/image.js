@@ -3,10 +3,17 @@
 const util  = require('util');
 const fs    = require('fs');
 
+const EventEmitter = require('events');
+
 const { Image } = require('../core');
 
 const download = require('./download');
 
+
+Image.prototype.__proto__ = EventEmitter.prototype;
+console.log('image.js', (new Image()));
+console.log('image.js', (new Image()).on);
+console.log('image.js', EventEmitter.prototype);
 
 class JsImage extends Image {
 	
@@ -177,6 +184,7 @@ class JsImage extends Image {
 			const [head, body] = this._src.split(',');
 			const isBase64 = head.indexOf('base64') > -1;
 			const data = isBase64 ? Buffer.from(body, 'base64') : Buffer.from(unescape(body));
+			console.log('image.js', 'this', this, this._load, this.save, this.width);
 			this._load(data);
 			return;
 			

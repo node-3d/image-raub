@@ -29,13 +29,13 @@
 
 
 #define JS_THROW(val)                                                         \
-	Napi::Error::New(env, val).ThrowAsJavaScriptException();                  \
-	return env.Null();
+	Napi::Error::New(env, val).ThrowAsJavaScriptException();
 
 
 #define REQ_ARGS(N)                                                           \
-	if (info.Length() < (N))                                                  \
-		JS_THROW("Expected at least " #N " arguments");
+	if (info.Length() < (N)) {                                                \
+		JS_THROW("Expected at least " #N " arguments");                       \
+	}
 
 
 #define IS_EMPTY(val) (val.IsNull() || val.IsUndefined())
@@ -43,12 +43,18 @@
 
 
 #define CHECK_REQ_ARG(I, C, T)                                                \
-	if (info.Length() <= (I) || ! info[I].C)                                  \
-		JS_THROW("Argument " #I " must be of type `" T "`");
+	if (info.Length() <= (I) || ! info[I].C) {                                \
+		JS_THROW("Argument " #I " must be of type `" T "`");                  \
+	}
 
 #define CHECK_LET_ARG(I, C, T)                                                \
-	if ( ! (IS_ARG_EMPTY(I) || info[I].C) )                                   \
-		JS_THROW("Argument " #I " must be of type `" T "` or be `null`/`undefined`");
+	if ( ! (IS_ARG_EMPTY(I) || info[I].C) ) {                                 \
+		JS_THROW(                                                             \
+			"Argument " #I                                                    \
+			" must be of type `" T                                            \
+			"` or be `null`/`undefined`"                                      \
+		);                                                                    \
+	}
 
 
 #define REQ_STR_ARG(I, VAR)                                                   \
@@ -185,7 +191,7 @@
 
 #define REQ_BUF_ARG(I, VAR)                                                   \
 	CHECK_REQ_ARG(I, IsBuffer(), "Buffer");                                   \
-	Napi::Buffer VAR = info[I].As<Napi::Buffer>();
+	Napi::Buffer<uint8_t> VAR = info[I].As< Napi::Buffer<uint8_t> >();
 
 
 #define CTOR_CHECK(T)                                                         \
@@ -194,6 +200,10 @@
 
 #define DES_CHECK                                                             \
 	if (_isDestroyed) return;
+
+#define THIS_CHECK                                                            \
+	NAPI_ENV;                                                                 \
+	if (_isDestroyed) RET_UNDEFINED;
 
 #define SETTER_CHECK(C, T)                                                    \
 	if ( ! value.C )                                                          \
@@ -211,8 +221,8 @@
 #define ACCESSOR_R(CLASS, NAME)                                               \
 	InstanceAccessor(#NAME, &CLASS::NAME ## Getter, nullptr)
 
-#define ACCESSOR_M(NAME, FUNC)                                                \
-	InstanceMethod(#NAME, FUNC)
+#define ACCESSOR_M(CLASS, NAME)                                                \
+	InstanceMethod(#NAME, &CLASS::NAME)
 
 
 #define SETTER_STR_ARG                                                        \
@@ -287,8 +297,7 @@
 		}                                                                     \
 	} while (0)
 
-
-#define JS_RUN(code, VAR, ATE)                                                \
+#define JS_RUN_3(code, VAR, ATE)                                              \
 	napi_value __RESULT_ ## VAR;                                              \
 	NAPI_CALL(                                                                \
 		napi_run_script(env, napi_value(JS_STR(code)), &__RESULT_ ## VAR),    \
@@ -296,9 +305,12 @@
 	);                                                                        \
 	Napi::Value VAR(env, __RESULT_ ## VAR);
 
+#define JS_RUN_2(code, VAR) JS_RUN_3(code, VAR, return)
+#define JS_RUN JS_RUN_3
+
 
 template<typename Type>
-inline Type* getArrayData(Napi::Object obj, int *num = nullptr) {
+inline Type* getArrayData(Napi::Env env, Napi::Object obj, int *num = nullptr) {
 	
 	Type *data = nullptr;
 	
@@ -315,14 +327,14 @@ inline Type* getArrayData(Napi::Object obj, int *num = nullptr) {
 	if (num) {
 		*num = arr.ByteLength() / sizeof(Type);
 	}
-	data = arr.Data<Type*>();
+	data = static_cast<Type *>(arr.Data());
 	
 	return data;
 	
 }
 
 template<typename Type>
-inline Type* getBufferData(Napi::Object obj, int *num = nullptr) {
+inline Type* getBufferData(Napi::Env env, Napi::Object obj, int *num = nullptr) {
 	
 	Type *data = nullptr;
 	
@@ -335,33 +347,39 @@ inline Type* getBufferData(Napi::Object obj, int *num = nullptr) {
 		return data;
 	}
 	
-	Napi::Buffer arr = obj.As<Napi::Buffer>();
+	Napi::Buffer<uint8_t> arr = obj.As< Napi::Buffer<uint8_t> >();
 	if (num) {
 		*num = arr.Length() / sizeof(Type);
 	}
-	data = arr.Data<Type*>();
+	data = arr.Data();
 	
 	return data;
 	
 }
 
 
-inline void *getData(Napi::Object obj) {
+inline void *getData(Napi::Env env, Napi::Object obj) {
 	
 	void *pixels = nullptr;
 	
 	if (obj.IsArrayBuffer()) {
-		pixels = getArrayData<unsigned char>(obj);
+		pixels = getArrayData<unsigned char>(env, obj);
 	} else if (obj.IsTypedArray()) {
-		pixels = getArrayData<unsigned char>(obj.As<Napi::TypedArray>().ArrayBuffer());
+		pixels = getArrayData<unsigned char>(
+			env,
+			obj.As<Napi::TypedArray>().ArrayBuffer()
+		);
 	} else if (obj.Has("data")) {
 		Napi::Object data = obj.Get("data").As<Napi::Object>();
 		if (data.IsArrayBuffer()) {
-			pixels = getArrayData<unsigned char>(data);
+			pixels = getArrayData<unsigned char>(env, data);
 		} else if (data.IsBuffer()) {
-			pixels = getBufferData<unsigned char>(data);
+			pixels = getBufferData<unsigned char>(env, data);
 		} else if (data.IsTypedArray()) {
-			pixels = getArrayData<unsigned char>(data.As<Napi::TypedArray>().ArrayBuffer());
+			pixels = getArrayData<unsigned char>(
+				env,
+				data.As<Napi::TypedArray>().ArrayBuffer()
+			);
 		}
 	}
 	
@@ -372,7 +390,7 @@ inline void *getData(Napi::Object obj) {
 
 inline void consoleLog(Napi::Env env, int argc, Napi::Value *argv) {
 	
-	JS_RUN("((...args) => console.log(...args))", log);
+	JS_RUN_2("((...args) => console.log(...args))", log);
 	std::vector<napi_value> args;
 	for (int i = 0; i < argc; i++) {
 		args.push_back(napi_value(argv[i]));

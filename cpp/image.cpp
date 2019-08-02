@@ -9,42 +9,28 @@ using namespace Napi;
 using namespace std;
 
 
-// ------ Aux macros
-
-#define THIS_IMAGE                                                            \
-	NAPI_ENV;                                                                 \
-	Image *image = this;
-
-#define THIS_CHECK                                                            \
-	if (image->_isDestroyed) return env.Undefined();
-
-
-// ------ Methods and props
-
-JS_GETTER(Image::_dataGetter) {
-	THIS_IMAGE;
-	THIS_CHECK;
+JS_GETTER(Image::_dataGetter) { THIS_CHECK;
 	
 	return _data;
 	
 }
 
 
-JS_GETTER(Image::widthGetter) { THIS_IMAGE; THIS_CHECK;
+JS_GETTER(Image::widthGetter) { THIS_CHECK;
 	
-	RET_NUM(image->_bitmap ? FreeImage_GetWidth(image->_bitmap) : 0);
-	
-}
-
-
-JS_GETTER(Image::heightGetter) { THIS_IMAGE; THIS_CHECK;
-	
-	RET_NUM(image->_bitmap ? FreeImage_GetHeight(image->_bitmap) : 0);
+	RET_NUM(_bitmap ? FreeImage_GetWidth(_bitmap) : 0);
 	
 }
 
 
-JS_METHOD(Image::load) { THIS_IMAGE; THIS_CHECK;
+JS_GETTER(Image::heightGetter) { THIS_CHECK;
+	
+	RET_NUM(_bitmap ? FreeImage_GetHeight(_bitmap) : 0);
+	
+}
+
+
+JS_METHOD(Image::_load) { THIS_CHECK;
 	
 	REQ_BUF_ARG(0, file);
 	
@@ -56,20 +42,20 @@ JS_METHOD(Image::load) { THIS_IMAGE; THIS_CHECK;
 	FREE_IMAGE_FORMAT format = FreeImage_GetFileTypeFromMemory(memStream, bufferLength);
 	FIBITMAP *tmpBitmap = FreeImage_LoadFromMemory(format, memStream);
 	
-	if (image->_bitmap) {
-		FreeImage_Unload(image->_bitmap);
+	if (_bitmap) {
+		FreeImage_Unload(_bitmap);
 	}
 	
-	image->_bitmap = FreeImage_ConvertTo32Bits(tmpBitmap);
+	_bitmap = FreeImage_ConvertTo32Bits(tmpBitmap);
 	
 	FreeImage_Unload(tmpBitmap);
 	
 	FreeImage_CloseMemory(memStream);
 	
 	// adjust internal fields
-	size_t num_pixels = FreeImage_GetWidth(image->_bitmap) *
-		FreeImage_GetHeight(image->_bitmap);
-	BYTE *pixels = FreeImage_GetBits(image->_bitmap);
+	size_t num_pixels = FreeImage_GetWidth(_bitmap) *
+		FreeImage_GetHeight(_bitmap);
+	BYTE *pixels = FreeImage_GetBits(_bitmap);
 	int num_bytes = static_cast<int>(num_pixels * 4);
 	
 	// FreeImage stores data in BGR. Convert from BGR to RGB.
@@ -80,44 +66,44 @@ JS_METHOD(Image::load) { THIS_IMAGE; THIS_CHECK;
 		pixels[i4 + 2] = temp;
 	}
 	
-	Napi::Object buffer = Napi::Buffer<BYTE>::New(env, num_bytes);
+	Napi::Buffer<uint8_t> buffer = Napi::Buffer<uint8_t>::New(env, num_bytes);
 	memcpy(buffer.Data(), pixels, num_bytes);
 	_data = buffer;
 	
-	image->emit("load");
+	emit(info, "load");
 	
-	return env.Undefined();
+	RET_UNDEFINED;
 	
 }
 
 
-JS_METHOD(Image::unload) { THIS_IMAGE; THIS_CHECK;
+JS_METHOD(Image::_unload) { THIS_CHECK;
 	
-	if (image->_bitmap) {
-		FreeImage_Unload(image->_bitmap);
-		image->_bitmap = nullptr;
+	if (_bitmap) {
+		FreeImage_Unload(_bitmap);
+		_bitmap = nullptr;
 	}
 	
 	_data = env.Null();
 	
-	image->emit("load");
+	emit(info, "load");
 	
-	return env.Undefined();
+	RET_UNDEFINED;
 	
 }
 
 
-JS_METHOD(Image::save) { THIS_IMAGE; THIS_CHECK;
+JS_METHOD(Image::save) { THIS_CHECK;
 	
 	REQ_STR_ARG(0, dest)
 	
 	FREE_IMAGE_FORMAT format = FreeImage_GetFIFFromFilename(dest.data());
 	
-	if ( ! image->_bitmap ) {
-		return RET_BOOL(false);
+	if ( ! _bitmap ) {
+		RET_BOOL(false);
 	}
 	
-	FIBITMAP *output = image->_bitmap;
+	FIBITMAP *output = _bitmap;
 	unsigned bpp = FreeImage_GetBPP(output);
 	
 	if (format == FIF_JPEG && bpp != 24) {
@@ -136,13 +122,13 @@ JS_METHOD(Image::save) { THIS_IMAGE; THIS_CHECK;
 
 
 // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage
-JS_METHOD(Image::drawImage) { THIS_IMAGE; THIS_CHECK;
+JS_METHOD(Image::drawImage) { THIS_CHECK;
 	
 	REQ_OBJ_ARG(0, _src);
 	Image *src = Napi::ObjectWrap<Image>::Unwrap(_src);
 	
 	if ( ! src->_bitmap ) {
-		return env.Undefined();
+		RET_UNDEFINED;
 	}
 	
 	LET_UINT32_ARG(1, arg1);
@@ -181,24 +167,24 @@ JS_METHOD(Image::drawImage) { THIS_IMAGE; THIS_CHECK;
 		dWidth = arg7;
 		dHeight = arg8;
 	} else {
-		return env.Undefined();
+		RET_UNDEFINED;
 	}
 	
 	FIBITMAP *result = FreeImage_RescaleRect(
 		src->_bitmap, dWidth, dHeight, sx, sy, sx + sWidth, sy + sHeight
 	);
 	
-	if (image->_bitmap) {
-		FreeImage_Unload(image->_bitmap);
+	if (_bitmap) {
+		FreeImage_Unload(_bitmap);
 	}
 	
-	image->_bitmap = result;
+	_bitmap = result;
 	
 	// ---------- TODO: DRY
 	
 	// adjust internal fields
-	size_t num_pixels = FreeImage_GetWidth(image->_bitmap) * FreeImage_GetHeight(image->_bitmap);
-	BYTE *pixels = FreeImage_GetBits(image->_bitmap);
+	size_t num_pixels = FreeImage_GetWidth(_bitmap) * FreeImage_GetHeight(_bitmap);
+	BYTE *pixels = FreeImage_GetBits(_bitmap);
 	int num_bytes = static_cast<int>(num_pixels * 4);
 	
 	// ---------- TODO: UNSURE what happens to BGR above
@@ -211,11 +197,11 @@ JS_METHOD(Image::drawImage) { THIS_IMAGE; THIS_CHECK;
 	// 	pixels[i4 + 2] = temp;
 	// }
 	
-	Napi::Object buffer = Napi::Buffer<BYTE>::New(env, num_bytes);
+	Napi::Buffer<uint8_t> buffer = Napi::Buffer<uint8_t>::New(env, num_bytes);
 	memcpy(buffer.Data(), pixels, num_bytes);
 	_data = buffer;
 	
-	return env.Undefined();
+	RET_UNDEFINED;
 	
 }
 
@@ -226,21 +212,27 @@ Napi::FunctionReference Image::_constructor;
 
 void Image::init(Napi::Env env, Napi::Object exports) {
 	
-	Napi::Function func = DefineClass(env, "Image", {
+	// JS_RUN_2("require('events')", EventEmitterVal);
+	// Napi::Object EventEmitter = EventEmitterVal.As<Napi::Object>();
+	
+	Napi::Function ctor = DefineClass(env, "Image", {
 		ACCESSOR_R(Image, isDestroyed),
 		ACCESSOR_R(Image, width),
 		ACCESSOR_R(Image, height),
-		ACCESSOR_M("destroy", &Image::destroy),
-		ACCESSOR_M("save", &Image::save),
-		ACCESSOR_M("_load", &Image::load),
-		ACCESSOR_M("_unload", &Image::unload),
-		ACCESSOR_M("drawImage", &Image::drawImage),
+		ACCESSOR_M(Image, destroy),
+		ACCESSOR_M(Image, save),
+		ACCESSOR_M(Image, _load),
+		ACCESSOR_M(Image, _unload),
+		ACCESSOR_M(Image, drawImage),
 	});
 	
-	_constructor = Napi::Persistent(func);
+	// Napi::Object prototype = ctor.Get("prototype").As<Napi::Object>();
+	// prototype.Set("__proto__", EventEmitter.Get("prototype"));
+	
+	_constructor = Napi::Persistent(ctor);
 	_constructor.SuppressDestruct();
 	
-	exports.Set("Image", func);
+	exports.Set("Image", ctor);
 	
 }
 
@@ -251,7 +243,8 @@ bool Image::isImage(Napi::Object obj) {
 
 Image::Image(const Napi::CallbackInfo &info): Napi::ObjectWrap<Image>(info) {
 	NAPI_ENV;
-	_data = env.Null();
+	_null = env.Null();
+	_data = _null;
 	_isDestroyed = false;
 	_bitmap = nullptr;
 }
@@ -268,22 +261,37 @@ void Image::_destroy() { DES_CHECK;
 		_bitmap = nullptr;
 	}
 	
+	_data = _null;
 	_isDestroyed = true;
 	
 }
 
-JS_METHOD(Image::destroy) { THIS_IMAGE; THIS_CHECK;
+JS_METHOD(Image::destroy) { THIS_CHECK;
 	
-	image->emit("destroy");
+	_destroy();
 	
-	image->_destroy();
+	RET_UNDEFINED;
+	
+}
+
+
+JS_GETTER(Image::isDestroyedGetter) { NAPI_ENV;
+	
+	RET_VALUE(JS_BOOL(_isDestroyed));
 	
 }
 
 
-JS_GETTER(Image::isDestroyedGetter) { THIS_IMAGE;
+void Image::emit(const Napi::CallbackInfo& info, const char* name) {
+	NAPI_ENV;
 	
-	RET_VALUE(JS_BOOL(image->_isDestroyed));
+	Napi::String eventName = JS_STR(name);
+	Napi::Object that = info.This().As<Napi::Object>();
+	Napi::Function thatEmit = that.Get("emit").As<Napi::Function>();
 	
+	JS_RUN_2("((...args) => console.log(...args))", log);
+	std::vector<napi_value> args;
+	args.push_back(napi_value(eventName));
+	
+	log.As<Napi::Function>().MakeCallback(napi_value(that), args);
 }
-

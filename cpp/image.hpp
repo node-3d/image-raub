@@ -14,10 +14,10 @@ public:
 	
 	// Public Napi init
 	static void init(Napi::Env env, Napi::Object exports);
+	static bool isImage(Napi::Object obj);
 	
 	Image(const Napi::CallbackInfo& info);
-	
-	static bool isImage(Napi::Object obj);
+	~Image();
 	
 	// Destroy an instance from C++ land
 	void _destroy();
@@ -31,19 +31,20 @@ protected:
 	
 	JS_METHOD(destroy);
 	
-	JS_METHOD(load);
-	JS_METHOD(unload);
+	JS_METHOD(_load);
+	JS_METHOD(_unload);
 	JS_METHOD(save);
 	
 	JS_METHOD(drawImage);
 	
-	~Image();
+	void emit(const Napi::CallbackInfo& info, const char* name);
 	
  private:
 	
 	static Napi::FunctionReference _constructor;
 	
 	Napi::Value _data;
+	Napi::Value _null;
 	
 	bool _isDestroyed;
 	
