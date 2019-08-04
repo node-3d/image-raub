@@ -13,4 +13,4 @@ Debug/
 examples/
 package-lock.json
 test/
-qt/
+cpp/

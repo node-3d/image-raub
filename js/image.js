@@ -11,9 +11,6 @@ const download = require('./download');
 
 
 Image.prototype.__proto__ = EventEmitter.prototype;
-console.log('image.js', (new Image()));
-console.log('image.js', (new Image()).on);
-console.log('image.js', EventEmitter.prototype);
 
 class JsImage extends Image {
 	

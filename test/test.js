@@ -2,7 +2,7 @@
 
 const { expect } = require('chai');
 
-const Image = require('image-raub');
+const Image = require('..');
 
 
 const TEST_IMAGE_WIDTH = 283;

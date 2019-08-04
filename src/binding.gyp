@@ -88,7 +88,11 @@
 				'action_name' : 'Module copied.',
 				'inputs'      : [],
 				'outputs'     : ['binary'],
-				'action'      : ['<(cp)', 'build/Release/image.node', '<(binary)/image.node'],
+				'action'      : [
+					'<(cp)',
+					'build/Release/image.node',
+					'<(binary)/image.node'
+				],
 			}],
 		},
 		{
@@ -99,24 +103,23 @@
 				'action_name' : 'Build intermediates removed.',
 				'inputs'      : [],
 				'outputs'     : ['cpp'],
-				'conditions'  : [
-					[ 'OS=="linux"', { 'action' : [
-						'rm',
-						'<(module_root_dir)/build/Release/obj.target/image/cpp/image.o',
-						'<(module_root_dir)/build/Release/obj.target/image.node',
-						'<(module_root_dir)/build/Release/image.node'
-					] } ],
-					[ 'OS=="mac"', { 'action' : [
-						'rm',
-						'<(module_root_dir)/build/Release/obj.target/image/cpp/image.o',
-						'<(module_root_dir)/build/Release/image.node'
-					] } ],
-					[ 'OS=="win"', { 'action' : [
+				'conditions'  : [[
+					# IF WINDOWS
+					'OS=="win"',
+					{ 'action' : [
 						'<(rm)',
 						'<(module_root_dir)/build/Release/image.*',
 						'<(module_root_dir)/build/Release/obj/image/*.*'
-					] } ],
-				],
+					] },
+					# ELSE
+					{ 'action' : [
+						'<(rm)',
+						'<(module_root_dir)/build/Release/obj.target/image/cpp/image.o',
+						'<(module_root_dir)/build/Release/obj.target/image/cpp/bindings.o',
+						'<(module_root_dir)/build/Release/obj.target/image.node',
+						'<(module_root_dir)/build/Release/image.node'
+					] }
+				]],
 			}],
 		},
 		

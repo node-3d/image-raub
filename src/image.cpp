@@ -9,13 +9,6 @@ using namespace Napi;
 using namespace std;
 
 
-JS_GETTER(Image::_dataGetter) { THIS_CHECK;
-	
-	return _data;
-	
-}
-
-
 JS_GETTER(Image::widthGetter) { THIS_CHECK;
 	
 	RET_NUM(_bitmap ? FreeImage_GetWidth(_bitmap) : 0);
@@ -68,7 +61,9 @@ JS_METHOD(Image::_load) { THIS_CHECK;
 	
 	Napi::Buffer<uint8_t> buffer = Napi::Buffer<uint8_t>::New(env, num_bytes);
 	memcpy(buffer.Data(), pixels, num_bytes);
-	_data = buffer;
+	
+	Napi::Object that = info.This().As<Napi::Object>();
+	that.Set("_data", buffer);
 	
 	emit(info, "load");
 	
@@ -84,7 +79,8 @@ JS_METHOD(Image::_unload) { THIS_CHECK;
 		_bitmap = nullptr;
 	}
 	
-	_data = env.Null();
+	Napi::Object that = info.This().As<Napi::Object>();
+	that.Set("_data", env.Null());
 	
 	emit(info, "load");
 	
@@ -199,7 +195,9 @@ JS_METHOD(Image::drawImage) { THIS_CHECK;
 	
 	Napi::Buffer<uint8_t> buffer = Napi::Buffer<uint8_t>::New(env, num_bytes);
 	memcpy(buffer.Data(), pixels, num_bytes);
-	_data = buffer;
+	
+	Napi::Object that = info.This().As<Napi::Object>();
+	that.Set("_data", buffer);
 	
 	RET_UNDEFINED;
 	
@@ -212,9 +210,6 @@ Napi::FunctionReference Image::_constructor;
 
 void Image::init(Napi::Env env, Napi::Object exports) {
 	
-	// JS_RUN_2("require('events')", EventEmitterVal);
-	// Napi::Object EventEmitter = EventEmitterVal.As<Napi::Object>();
-	
 	Napi::Function ctor = DefineClass(env, "Image", {
 		ACCESSOR_R(Image, isDestroyed),
 		ACCESSOR_R(Image, width),
@@ -225,9 +220,6 @@ void Image::init(Napi::Env env, Napi::Object exports) {
 		ACCESSOR_M(Image, _unload),
 		ACCESSOR_M(Image, drawImage),
 	});
-	
-	// Napi::Object prototype = ctor.Get("prototype").As<Napi::Object>();
-	// prototype.Set("__proto__", EventEmitter.Get("prototype"));
 	
 	_constructor = Napi::Persistent(ctor);
 	_constructor.SuppressDestruct();
@@ -242,9 +234,6 @@ bool Image::isImage(Napi::Object obj) {
 }
 
 Image::Image(const Napi::CallbackInfo &info): Napi::ObjectWrap<Image>(info) {
-	NAPI_ENV;
-	_null = env.Null();
-	_data = _null;
 	_isDestroyed = false;
 	_bitmap = nullptr;
 }
@@ -261,7 +250,6 @@ void Image::_destroy() { DES_CHECK;
 		_bitmap = nullptr;
 	}
 	
-	_data = _null;
 	_isDestroyed = true;
 	
 }
@@ -284,14 +272,5 @@ JS_GETTER(Image::isDestroyedGetter) { NAPI_ENV;
 
 void Image::emit(const Napi::CallbackInfo& info, const char* name) {
 	NAPI_ENV;
-	
-	Napi::String eventName = JS_STR(name);
-	Napi::Object that = info.This().As<Napi::Object>();
-	Napi::Function thatEmit = that.Get("emit").As<Napi::Function>();
-	
-	JS_RUN_2("((...args) => console.log(...args))", log);
-	std::vector<napi_value> args;
-	args.push_back(napi_value(eventName));
-	
-	log.As<Napi::Function>().MakeCallback(napi_value(that), args);
+	eventEmit(env, info.This().As<Napi::Object>(), name);
 }

@@ -24,7 +24,6 @@ public:
 	
 protected:
 	
-	JS_GETTER(_dataGetter);
 	JS_GETTER(isDestroyedGetter);
 	JS_GETTER(widthGetter);
 	JS_GETTER(heightGetter);
@@ -42,9 +41,6 @@ protected:
  private:
 	
 	static Napi::FunctionReference _constructor;
-	
-	Napi::Value _data;
-	Napi::Value _null;
 	
 	bool _isDestroyed;
 	
