@@ -1,7 +1,7 @@
 language: node_js
 node_js:
   - "10.16.1"
-  
+
 install:
   - cd test
   - npm i
@@ -12,9 +12,6 @@ matrix:
     os: linux
     dist: xenial
     sudo: false
-    install:
-    - cd test
-    - npm i
   - name: "OSX Test"
     os: osx
   - name: "Linux Build"
@@ -22,10 +19,11 @@ matrix:
     if: commit_message =~ /^:hammer:/
     env:
     - ISBUILD=true
-    - MODULE=true
     - SYSNAME=Linux
+    install:
+      - cd src
     script:
-      - chmod +x src/osx.sh && src/osx.sh
+      - npm i
   - name: "OSX Build"
     os: osx
     if: commit_message =~ /^:hammer:/
@@ -33,10 +31,11 @@ matrix:
     compiler: clang++
     env:
     - ISBUILD=true
-    - MODULE=src/freeimage.dylib
     - SYSNAME=OSX
+    install:
+      - cd src
     script:
-      - chmod +x src/osx.sh && src/osx.sh
+      - npm i
 
 
 deploy:
@@ -44,11 +43,11 @@ deploy:
     all_branches: true
     condition: $ISBUILD = true
   provider: releases
-  name: "Binary for OSX"
+  name: "Binary for $SYSNAME"
   body: $TRAVIS_COMMIT_MESSAGE
   api_key: $GITHUB_TOKEN
   skip_cleanup: true
   overwrite: true
   draft: true
   file:
-    - "src/freeimage.dylib"
+    - "build/Release/image.node"

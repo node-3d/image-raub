@@ -3,9 +3,7 @@
 
 #include <FreeImage.h>
 
-#include <napi.h>
-
-#include <at.hpp>
+#include <addon-tools.hpp>
 
 
 class Image : public Napi::ObjectWrap<Image> {

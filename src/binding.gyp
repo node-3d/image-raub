@@ -1,11 +1,11 @@
 {
 	'variables': {
-		'rm'                : '<!(node -e "require(\'addon-tools-raub\').rm()")',
-		'cp'                : '<!(node -e "require(\'addon-tools-raub\').cp()")',
-		'mkdir'             : '<!(node -e "require(\'addon-tools-raub\').mkdir()")',
-		'binary'            : '<!(node -e "require(\'addon-tools-raub\').bin()")',
-		'freeimage_include' : '<!(node -e "require(\'deps-freeimage-raub\').include()")',
-		'freeimage_bin'     : '<!(node -e "require(\'deps-freeimage-raub\').bin()")',
+		'rm'                : '<!(node -p "require(\'addon-tools-raub\').rm")',
+		'cp'                : '<!(node -p "require(\'addon-tools-raub\').cp")',
+		'mkdir'             : '<!(node -p "require(\'addon-tools-raub\').mkdir")',
+		'binary'            : '<!(node -p "require(\'addon-tools-raub\').bin")',
+		'freeimage_include' : '<!(node -p "require(\'deps-freeimage-raub\').include")',
+		'freeimage_bin'     : '<!(node -p "require(\'deps-freeimage-raub\').bin")',
 	},
 	'targets': [
 		{
@@ -16,8 +16,7 @@
 			],
 			'include_dirs': [
 				'<(freeimage_include)',
-				'<(module_root_dir)/cpp',
-				'<!@(node -p "require(\'node-addon-api\').include")',
+				'<!@(node -p "require(\'addon-tools-raub\').include")',
 			],
 			'cflags!': ['-fno-exceptions'],
 			'cflags_cc!': ['-fno-exceptions'],
@@ -69,59 +68,5 @@
 				],
 			],
 		},
-		{
-			'target_name'  : 'make_directory',
-			'type'         : 'none',
-			'dependencies' : ['image'],
-			'actions'      : [{
-				'action_name' : 'Directory created.',
-				'inputs'      : [],
-				'outputs'     : ['build'],
-				'action': ['<(mkdir)', '-p', '<(binary)']
-			}],
-		},
-		{
-			'target_name'  : 'copy_binary',
-			'type'         : 'none',
-			'dependencies' : ['make_directory'],
-			'actions'      : [{
-				'action_name' : 'Module copied.',
-				'inputs'      : [],
-				'outputs'     : ['binary'],
-				'action'      : [
-					'<(cp)',
-					'build/Release/image.node',
-					'<(binary)/image.node'
-				],
-			}],
-		},
-		{
-			'target_name'  : 'remove_extras',
-			'type'         : 'none',
-			'dependencies' : ['copy_binary'],
-			'actions'      : [{
-				'action_name' : 'Build intermediates removed.',
-				'inputs'      : [],
-				'outputs'     : ['cpp'],
-				'conditions'  : [[
-					# IF WINDOWS
-					'OS=="win"',
-					{ 'action' : [
-						'<(rm)',
-						'<(module_root_dir)/build/Release/image.*',
-						'<(module_root_dir)/build/Release/obj/image/*.*'
-					] },
-					# ELSE
-					{ 'action' : [
-						'<(rm)',
-						'<(module_root_dir)/build/Release/obj.target/image/cpp/image.o',
-						'<(module_root_dir)/build/Release/obj.target/image/cpp/bindings.o',
-						'<(module_root_dir)/build/Release/obj.target/image.node',
-						'<(module_root_dir)/build/Release/image.node'
-					] }
-				]],
-			}],
-		},
-		
 	]
 }
