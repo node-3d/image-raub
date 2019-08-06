@@ -2,7 +2,7 @@
 
 const { expect } = require('chai');
 
-const Image = require('image-raub');
+const Image = require('..');
 
 
 const TEST_IMAGE_WIDTH = 283;
@@ -227,11 +227,11 @@ describe('Image', () => {
 		
 	});
 	
-	
+	const setSrc = (image, src) => { image.src = src; };
 	it('has correct `complete` after dropping `src`', async () => {
 		
 		const image = new Image();
-		image.src = `${__dirname}/freeimage.jpg`;
+		setSrc(image, `${__dirname}/freeimage.jpg`);
 		
 		let status = '';
 		image.on('load', () => status += image.complete);
@@ -243,7 +243,7 @@ describe('Image', () => {
 		
 		expect(image.complete).to.be.equal(true);
 		
-		image.src = '';
+		setSrc(image, '');
 		
 		await new Promise(res => setTimeout(res, 10));
 		
@@ -264,7 +264,11 @@ describe('Image', () => {
 		});
 		
 		const dest = new Image();
-		dest.drawImage(src, 0, 0, src.width, src.height, 0, 0, TEST_STRETCH_WIDTH, TEST_STRETCH_HEIGHT);
+		dest.drawImage(
+			src,
+			0, 0, src.width, src.height,
+			0, 0, TEST_STRETCH_WIDTH, TEST_STRETCH_HEIGHT
+		);
 		
 		expect(dest.width).to.be.equal(TEST_STRETCH_WIDTH);
 		expect(dest.height).to.be.equal(TEST_STRETCH_HEIGHT);
