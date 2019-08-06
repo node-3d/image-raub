@@ -15,7 +15,9 @@ matrix:
   - name: "OSX Test"
     os: osx
   - name: "Linux Build"
-    os: osx
+    os: linux
+    dist: xenial
+    sudo: false
     if: commit_message =~ /^:hammer:/
     env:
     - ISBUILD=true
@@ -27,8 +29,6 @@ matrix:
   - name: "OSX Build"
     os: osx
     if: commit_message =~ /^:hammer:/
-    language: cpp
-    compiler: clang++
     env:
     - ISBUILD=true
     - SYSNAME=OSX
@@ -50,4 +50,4 @@ deploy:
   overwrite: true
   draft: true
   file:
-    - "build/Release/image.node"
+    - "src/build/Release/image.node"

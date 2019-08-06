@@ -227,7 +227,7 @@ describe('Image', () => {
 		
 	});
 	
-	const setSrc = (image, src) => { image.src = src };
+	const setSrc = (image, src) => { image.src = src; };
 	it('has correct `complete` after dropping `src`', async () => {
 		
 		const image = new Image();
@@ -264,7 +264,11 @@ describe('Image', () => {
 		});
 		
 		const dest = new Image();
-		dest.drawImage(src, 0, 0, src.width, src.height, 0, 0, TEST_STRETCH_WIDTH, TEST_STRETCH_HEIGHT);
+		dest.drawImage(
+			src,
+			0, 0, src.width, src.height,
+			0, 0, TEST_STRETCH_WIDTH, TEST_STRETCH_HEIGHT
+		);
 		
 		expect(dest.width).to.be.equal(TEST_STRETCH_WIDTH);
 		expect(dest.height).to.be.equal(TEST_STRETCH_HEIGHT);
