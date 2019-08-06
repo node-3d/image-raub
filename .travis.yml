@@ -1,31 +1,14 @@
 language: node_js
-
 node_js:
   - "10.16.1"
-
-
-matrix:
-  include:
-  - name: "Linux"
-    os: linux
-    dist: xenial
-    sudo: false
-  - name: "MacOS"
-    os: osx
-  - name: "Windows"
-    os: windows
-
-
+  
 install:
   - cd test
   - npm i
 
-
 matrix:
   include:
   - name: "Linux Test"
-    language: node_js
-    node_js: "10.16.1"
     os: linux
     dist: xenial
     sudo: false
@@ -34,19 +17,13 @@ matrix:
     - npm i
   - name: "OSX Test"
     os: osx
-    language: node_js
-    node_js: "10.16.1"
-    install:
-    - cd test
-    - npm i
   - name: "Linux Build"
     os: osx
     if: commit_message =~ /^:hammer:/
-    language: cpp
-    compiler: clang++
     env:
     - ISBUILD=true
     - MODULE=true
+    - SYSNAME=Linux
     script:
       - chmod +x src/osx.sh && src/osx.sh
   - name: "OSX Build"
@@ -56,7 +33,8 @@ matrix:
     compiler: clang++
     env:
     - ISBUILD=true
-    - MODULE=true
+    - MODULE=src/freeimage.dylib
+    - SYSNAME=OSX
     script:
       - chmod +x src/osx.sh && src/osx.sh
 
