@@ -227,11 +227,11 @@ describe('Image', () => {
 		
 	});
 	
-	
+	const setSrc = (image, src) => { image.src = src };
 	it('has correct `complete` after dropping `src`', async () => {
 		
 		const image = new Image();
-		image.src = `${__dirname}/freeimage.jpg`;
+		setSrc(image, `${__dirname}/freeimage.jpg`);
 		
 		let status = '';
 		image.on('load', () => status += image.complete);
@@ -243,7 +243,7 @@ describe('Image', () => {
 		
 		expect(image.complete).to.be.equal(true);
 		
-		image.src = '';
+		setSrc(image, '');
 		
 		await new Promise(res => setTimeout(res, 10));
 		

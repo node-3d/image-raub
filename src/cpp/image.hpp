@@ -14,7 +14,7 @@ public:
 	static void init(Napi::Env env, Napi::Object exports);
 	static bool isImage(Napi::Object obj);
 	
-	Image(const Napi::CallbackInfo& info);
+	explicit Image(const Napi::CallbackInfo& info);
 	~Image();
 	
 	// Destroy an instance from C++ land
