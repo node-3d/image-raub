@@ -62,7 +62,7 @@ JS_METHOD(Image::_load) { THIS_CHECK;
 	Napi::Buffer<uint8_t> buffer = Napi::Buffer<uint8_t>::New(env, num_bytes);
 	memcpy(buffer.Data(), pixels, num_bytes);
 	
-	Napi::Object that = info.This().As<Napi::Object>();
+	THIS_OBJ(that);
 	that.Set("_data", buffer);
 	
 	emit(info, "load");
@@ -79,7 +79,7 @@ JS_METHOD(Image::_unload) { THIS_CHECK;
 		_bitmap = nullptr;
 	}
 	
-	Napi::Object that = info.This().As<Napi::Object>();
+	THIS_OBJ(that);
 	that.Set("_data", env.Null());
 	
 	emit(info, "load");
@@ -196,7 +196,7 @@ JS_METHOD(Image::drawImage) { THIS_CHECK;
 	Napi::Buffer<uint8_t> buffer = Napi::Buffer<uint8_t>::New(env, num_bytes);
 	memcpy(buffer.Data(), pixels, num_bytes);
 	
-	Napi::Object that = info.This().As<Napi::Object>();
+	THIS_OBJ(that);
 	that.Set("_data", buffer);
 	
 	RET_UNDEFINED;
@@ -272,5 +272,6 @@ JS_GETTER(Image::isDestroyedGetter) { NAPI_ENV;
 
 void Image::emit(const Napi::CallbackInfo& info, const char* name) {
 	NAPI_ENV;
-	eventEmit(env, info.This().As<Napi::Object>(), name);
+	THIS_OBJ(that);
+	eventEmit(env, that, name);
 }

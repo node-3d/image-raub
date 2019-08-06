@@ -3,9 +3,9 @@
 // Add deps dll dirs
 require('deps-freeimage-raub');
 
-const { binPath } = require('addon-tools-raub');
+const { bin } = require('addon-tools-raub');
 
-const core = require(`./${binPath}/image`);
+const core = require(`./${bin}/image`);
 
 
 module.exports = core;
