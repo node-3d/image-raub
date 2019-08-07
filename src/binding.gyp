@@ -1,6 +1,6 @@
 {
 	'variables': {
-		'platform'   : '<!(node -p "require(\'addon-tools-raub\').platform")',
+		'bin'        : '<!(node -p "require(\'addon-tools-raub\').bin")',
 		'fi_include' : '<!(node -p "require(\'deps-freeimage-raub\').include")',
 		'fi_bin'     : '<!(node -p "require(\'deps-freeimage-raub\').bin")',
 	},
@@ -25,8 +25,8 @@
 					{
 						'libraries': [
 							'-Wl,-rpath,@loader_path',
-							'-Wl,-rpath,@loader_path/../node_modules/deps-freeimage-raub/<(platform)',
-							'-Wl,-rpath,@loader_path/../../deps-freeimage-raub/<(platform)',
+							'-Wl,-rpath,@loader_path/../node_modules/deps-freeimage-raub/<(bin)',
+							'-Wl,-rpath,@loader_path/../../deps-freeimage-raub/<(bin)',
 							'<(fi_bin)/libfreeimage.so.3',
 						],
 					}
@@ -36,8 +36,8 @@
 					{
 						'libraries': [
 							'-Wl,-rpath,@loader_path',
-							'-Wl,-rpath,@loader_path/../node_modules/deps-freeimage-raub/<(platform)',
-							'-Wl,-rpath,@loader_path/../../deps-freeimage-raub/<(platform)',
+							'-Wl,-rpath,@loader_path/../node_modules/deps-freeimage-raub/<(bin)',
+							'-Wl,-rpath,@loader_path/../../deps-freeimage-raub/<(bin)',
 							'<(fi_bin)/freeimage.dylib',
 						],
 						'xcode_settings': {
