@@ -9,17 +9,14 @@ install:
 
 matrix:
   include:
-    
     - name: "Linux Test"
       os: linux
       if: NOT commit_message =~ /^:hammer:/
       dist: xenial
       sudo: false
-    
     - name: "OSX Test"
       os: osx
       if: NOT commit_message =~ /^:hammer:/
-    
     - name: "Linux Build"
       os: linux
       dist: xenial
@@ -33,7 +30,6 @@ matrix:
         - cd src
       script:
         - npm ci
-    
     - name: "OSX Build"
       os: osx
       if: commit_message =~ /^:hammer:/
