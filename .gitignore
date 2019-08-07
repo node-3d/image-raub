@@ -6,5 +6,7 @@
 .DS_Store
 .eslintrc
 node_modules/
+src/build/
+src/node_modules/
 bin-*/
 *.log

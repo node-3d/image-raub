@@ -24,8 +24,9 @@
 					'OS=="linux"',
 					{
 						'libraries': [
-							'-Wl,-rpath,$ORIGIN/../node_modules/deps-freeimage-raub/<(platform)',
-							'-Wl,-rpath,$ORIGIN/../../deps-freeimage-raub/<(platform)',
+							'-Wl,-rpath,@loader_path',
+							'-Wl,-rpath,@loader_path/../node_modules/deps-freeimage-raub/<(platform)',
+							'-Wl,-rpath,@loader_path/../../deps-freeimage-raub/<(platform)',
 							'<(fi_bin)/libfreeimage.so.3',
 						],
 					}
@@ -34,8 +35,9 @@
 					'OS=="mac"',
 					{
 						'libraries': [
-							'-Wl,-rpath,$ORIGIN/../node_modules/deps-freeimage-raub/<(platform)',
-							'-Wl,-rpath,$ORIGIN/../../deps-freeimage-raub/<(platform)',
+							'-Wl,-rpath,@loader_path',
+							'-Wl,-rpath,@loader_path/../node_modules/deps-freeimage-raub/<(platform)',
+							'-Wl,-rpath,@loader_path/../../deps-freeimage-raub/<(platform)',
 							'<(fi_bin)/freeimage.dylib',
 						],
 						'xcode_settings': {
