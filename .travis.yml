@@ -8,36 +8,43 @@ install:
 
 matrix:
   include:
-  - name: "Linux Test"
-    os: linux
-    if: NOT commit_message =~ /^:hammer:/
-    dist: xenial
-    sudo: false
-  - name: "OSX Test"
-    os: osx
-  - name: "Linux Build"
-    os: linux
-    if: NOT commit_message =~ /^:hammer:/
-    dist: xenial
-    sudo: false
-    if: commit_message =~ /^:hammer:/
-    env:
-    - ISBUILD=true
-    - SYSNAME=Linux
-    install:
-      - cd src
-    script:
-      - npm i
-  - name: "OSX Build"
-    os: osx
-    if: commit_message =~ /^:hammer:/
-    env:
-    - ISBUILD=true
-    - SYSNAME=OSX
-    install:
-      - cd src
-    script:
-      - npm i
+    - name: "Linux Test"
+      os: linux
+      if: NOT commit_message =~ /^:hammer:/
+      dist: xenial
+      sudo: false
+    
+    - name: "OSX Test"
+      os: osx
+      if: NOT commit_message =~ /^:hammer:/
+    
+    - name: "Linux Build"
+      os: linux
+      dist: xenial
+      sudo: false
+      if: commit_message =~ /^:hammer:/
+      env:
+        - ISBUILD=true
+        - SYSNAME=Linux
+        - BINNAME=linux
+      install:
+        - cd src
+      script:
+        - npm i
+        - cp build/Release/image.node build/Release/$SYSNAME.node
+    
+    - name: "OSX Build"
+      os: osx
+      if: commit_message =~ /^:hammer:/
+      env:
+        - ISBUILD=true
+        - SYSNAME=OSX
+        - BINNAME=osx
+      install:
+        - cd src
+      script:
+        - npm i
+        - cp build/Release/image.node build/Release/$SYSNAME.node
 
 
 deploy:
@@ -52,4 +59,4 @@ deploy:
   overwrite: true
   draft: true
   file:
-    - "build/Release/image.node"
+    - "build/Release/$SYSNAME.node"
