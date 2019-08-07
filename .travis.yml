@@ -4,10 +4,12 @@ node_js:
 
 install:
   - cd test
-  - npm i
+  - npm ci
+
 
 matrix:
   include:
+    
     - name: "Linux Test"
       os: linux
       if: NOT commit_message =~ /^:hammer:/
@@ -30,8 +32,7 @@ matrix:
       install:
         - cd src
       script:
-        - npm i
-        - cp build/Release/image.node build/Release/$SYSNAME.node
+        - npm ci
     
     - name: "OSX Build"
       os: osx
@@ -43,8 +44,7 @@ matrix:
       install:
         - cd src
       script:
-        - npm i
-        - cp build/Release/image.node build/Release/$SYSNAME.node
+        - npm ci
 
 
 deploy:
@@ -59,4 +59,4 @@ deploy:
   overwrite: true
   draft: true
   file:
-    - "build/Release/$SYSNAME.node"
+    - "build/Release/image.node"

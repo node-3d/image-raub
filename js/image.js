@@ -5,9 +5,9 @@ const fs    = require('fs');
 
 const EventEmitter = require('events');
 
-const { Image } = require('../core');
+const download = require('addon-tools/download');
 
-const download = require('./download');
+const { Image } = require('../core');
 
 
 Image.prototype.__proto__ = EventEmitter.prototype;
