@@ -10,12 +10,14 @@ matrix:
   include:
   - name: "Linux Test"
     os: linux
+    if: NOT commit_message =~ /^:hammer:/
     dist: xenial
     sudo: false
   - name: "OSX Test"
     os: osx
   - name: "Linux Build"
     os: linux
+    if: NOT commit_message =~ /^:hammer:/
     dist: xenial
     sudo: false
     if: commit_message =~ /^:hammer:/
@@ -50,4 +52,4 @@ deploy:
   overwrite: true
   draft: true
   file:
-    - "src/build/Release/image.node"
+    - "build/Release/image.node"
