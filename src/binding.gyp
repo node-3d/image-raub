@@ -24,9 +24,9 @@
 					'OS=="linux"',
 					{
 						'libraries': [
-							'-Wl,-rpath,@loader_path',
-							'-Wl,-rpath,@loader_path/../node_modules/deps-freeimage-raub/<(bin)',
-							'-Wl,-rpath,@loader_path/../../deps-freeimage-raub/<(bin)',
+							'-Wl,-rpath,$$ORIGIN',
+							'-Wl,-rpath,$$ORIGIN/../node_modules/deps-freeimage-raub/<(bin)',
+							'-Wl,-rpath,$$ORIGIN/../../deps-freeimage-raub/<(bin)',
 							'<(fi_bin)/libfreeimage.so.3',
 						],
 					}
