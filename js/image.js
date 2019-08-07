@@ -5,7 +5,7 @@ const fs    = require('fs');
 
 const EventEmitter = require('events');
 
-const download = require('addon-tools/download');
+const download = require('addon-tools-raub/download');
 
 const { Image } = require('../core');
 
