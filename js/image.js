@@ -115,7 +115,7 @@ class JsImage extends Image {
 	}
 	
 	
-	removeEventListener() {
+	removeEventListener(type, cb) {
 		this.removeListener(type, cb);
 	}
 	
