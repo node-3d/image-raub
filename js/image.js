@@ -111,7 +111,17 @@ class JsImage extends Image {
 	
 	
 	addEventListener(type, cb) {
-		this.on(type, cb.bind(this));
+		this.on(type, cb);
+	}
+	
+	
+	removeEventListener() {
+		this.removeListener(type, cb);
+	}
+	
+	
+	dispatchEvent(e) {
+		this.emit(e.type || 'unknown', e);
 	}
 	
 	

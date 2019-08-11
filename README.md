@@ -15,6 +15,9 @@ This is a part of [Node3D](https://github.com/node-3d) project.
 **Node.js** N-API addon implementing the
 [HTMLImageElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/Image).
 
+> Note: this **addon uses N-API**, and therefore is ABI-compatible across different
+Node.js versions. Addon binaries are precompiled and **there is no compilation**
+step during the `npm i` command.
 
 The `src` property can be:
 * A local file.
@@ -22,7 +25,7 @@ The `src` property can be:
 * A http(s) URL.
 
 
-Uses [FreeImage](http://freeimage.sourceforge.net/) as a backend decoder.
+[FreeImage](http://freeimage.sourceforge.net/) is used as backend decoder.
 
 
 Additional features include:
