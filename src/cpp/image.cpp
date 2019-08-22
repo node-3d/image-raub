@@ -271,6 +271,5 @@ JS_GETTER(Image::isDestroyedGetter) { NAPI_ENV;
 
 
 void Image::emit(const Napi::CallbackInfo& info, const char* name) {
-	NAPI_ENV;
-	eventEmit(env, info.This().As<Napi::Object>(), name);
+	eventEmit(info.This().As<Napi::Object>(), name);
 }
