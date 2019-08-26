@@ -7,7 +7,7 @@ This is a part of [Node3D](https://github.com/node-3d) project.
 [![Build Status](https://api.travis-ci.com/node-3d/image-raub.svg?branch=master)](https://travis-ci.com/node-3d/image-raub)
 [![CodeFactor](https://www.codefactor.io/repository/github/node-3d/image-raub/badge)](https://www.codefactor.io/repository/github/node-3d/image-raub)
 
-> npm i -s image-raub
+> npm i image-raub
 
 
 ## Synopsis
@@ -29,7 +29,8 @@ The `src` property can be:
 
 
 Additional features include:
-* Ability to save the image.
+* Save the image to disk.
+* Create an Image from raw RGBA pixel data.
 * Some context 2d functionality, e.g. `drawImage`.
 
 
