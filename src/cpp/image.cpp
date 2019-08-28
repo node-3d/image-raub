@@ -1,7 +1,7 @@
 #include "image.hpp"
 
 
-IMPLEMENT_ES5_CLASS(Image, Image);
+IMPLEMENT_ES5_CLASS(Image);
 
 void Image::init(Napi::Env env, Napi::Object exports) {
 	
@@ -252,7 +252,7 @@ JS_IMPLEMENT_METHOD(Image, destroy) { THIS_CHECK;
 
 JS_IMPLEMENT_GETTER(Image, isDestroyed) { NAPI_ENV;
 	
-	RET_VALUE(JS_IMPLEMENT_BOOL(_isDestroyed, ;
+	RET_BOOL(_isDestroyed);
 	
 }
 
