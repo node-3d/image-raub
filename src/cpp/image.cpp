@@ -1,29 +1,66 @@
-#include <cstdlib>
-#include <vector>
-#include <iostream>
-
 #include "image.hpp"
 
 
-using namespace Napi;
-using namespace std;
+IMPLEMENT_ES5_CLASS(Image, Image);
+
+void Image::init(Napi::Env env, Napi::Object exports) {
+	
+	Napi::Function ctor = wrap(env);
+	
+	JS_ASSIGN_GETTER(isDestroyed);
+	JS_ASSIGN_GETTER(width);
+	JS_ASSIGN_GETTER(height);
+	
+	JS_ASSIGN_METHOD(destroy);
+	JS_ASSIGN_METHOD(save);
+	JS_ASSIGN_METHOD(_load);
+	JS_ASSIGN_METHOD(_unload);
+	JS_ASSIGN_METHOD(drawImage);
+	
+	exports.Set("Image", ctor);
+	
+}
 
 
-JS_GETTER(Image::widthGetter) { THIS_CHECK;
+Image::Image(const Napi::CallbackInfo &info) {
+	super(info);
+	_isDestroyed = false;
+	_bitmap = nullptr;
+}
+
+
+Image::~Image() {
+	_destroy();
+}
+
+
+void Image::_destroy() { DES_CHECK;
+	
+	if (_bitmap) {
+		FreeImage_Unload(_bitmap);
+		_bitmap = nullptr;
+	}
+	
+	_isDestroyed = true;
+	
+}
+
+
+JS_IMPLEMENT_GETTER(Image, width) { THIS_CHECK;
 	
 	RET_NUM(_bitmap ? FreeImage_GetWidth(_bitmap) : 0);
 	
 }
 
 
-JS_GETTER(Image::heightGetter) { THIS_CHECK;
+JS_IMPLEMENT_GETTER(Image, height) { THIS_CHECK;
 	
 	RET_NUM(_bitmap ? FreeImage_GetHeight(_bitmap) : 0);
 	
 }
 
 
-JS_METHOD(Image::_load) { THIS_CHECK;
+JS_IMPLEMENT_METHOD(Image, _load) { THIS_CHECK;
 	
 	REQ_BUF_ARG(0, file);
 	
@@ -72,7 +109,7 @@ JS_METHOD(Image::_load) { THIS_CHECK;
 }
 
 
-JS_METHOD(Image::_unload) { THIS_CHECK;
+JS_IMPLEMENT_METHOD(Image, _unload) { THIS_CHECK;
 	
 	if (_bitmap) {
 		FreeImage_Unload(_bitmap);
@@ -89,7 +126,7 @@ JS_METHOD(Image::_unload) { THIS_CHECK;
 }
 
 
-JS_METHOD(Image::save) { THIS_CHECK;
+JS_IMPLEMENT_METHOD(Image, save) { THIS_CHECK;
 	
 	REQ_STR_ARG(0, dest)
 	
@@ -118,7 +155,7 @@ JS_METHOD(Image::save) { THIS_CHECK;
 
 
 // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage
-JS_METHOD(Image::drawImage) { THIS_CHECK;
+JS_IMPLEMENT_METHOD(Image, drawImage) { THIS_CHECK;
 	
 	REQ_OBJ_ARG(0, _src);
 	Image *src = Napi::ObjectWrap<Image>::Unwrap(_src);
@@ -204,57 +241,7 @@ JS_METHOD(Image::drawImage) { THIS_CHECK;
 }
 
 
-// ------ System methods and props for ObjectWrap
-
-Napi::FunctionReference Image::_constructor;
-
-void Image::init(Napi::Env env, Napi::Object exports) {
-	
-	Napi::Function ctor = DefineClass(env, "Image", {
-		ACCESSOR_R(Image, isDestroyed),
-		ACCESSOR_R(Image, width),
-		ACCESSOR_R(Image, height),
-		ACCESSOR_M(Image, destroy),
-		ACCESSOR_M(Image, save),
-		ACCESSOR_M(Image, _load),
-		ACCESSOR_M(Image, _unload),
-		ACCESSOR_M(Image, drawImage),
-	});
-	
-	_constructor = Napi::Persistent(ctor);
-	_constructor.SuppressDestruct();
-	
-	exports.Set("Image", ctor);
-	
-}
-
-
-bool Image::isImage(Napi::Object obj) {
-	return obj.InstanceOf(_constructor.Value());
-}
-
-Image::Image(const Napi::CallbackInfo &info): Napi::ObjectWrap<Image>(info) {
-	_isDestroyed = false;
-	_bitmap = nullptr;
-}
-
-Image::~Image() {
-	_destroy();
-}
-
-
-void Image::_destroy() { DES_CHECK;
-	
-	if (_bitmap) {
-		FreeImage_Unload(_bitmap);
-		_bitmap = nullptr;
-	}
-	
-	_isDestroyed = true;
-	
-}
-
-JS_METHOD(Image::destroy) { THIS_CHECK;
+JS_IMPLEMENT_METHOD(Image, destroy) { THIS_CHECK;
 	
 	_destroy();
 	
@@ -263,9 +250,9 @@ JS_METHOD(Image::destroy) { THIS_CHECK;
 }
 
 
-JS_GETTER(Image::isDestroyedGetter) { NAPI_ENV;
+JS_IMPLEMENT_GETTER(Image, isDestroyed) { NAPI_ENV;
 	
-	RET_VALUE(JS_BOOL(_isDestroyed));
+	RET_VALUE(JS_IMPLEMENT_BOOL(_isDestroyed, ;
 	
 }
 

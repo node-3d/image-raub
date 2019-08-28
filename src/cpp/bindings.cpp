@@ -1,5 +1,3 @@
-#include <napi.h>
-
 #include "image.hpp"
 
 
