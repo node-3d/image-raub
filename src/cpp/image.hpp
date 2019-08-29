@@ -144,9 +144,8 @@ typedef void (*StaticSetterCallback)(const Napi::CallbackInfo& info);
 	napi_value CLASS::_createEs5(napi_env env, napi_callback_info i) { \
 		Napi::CallbackInfo info(env, i); \
 		CLASS *instance = new CLASS(info); \
-		Napi::Object dest = Napi::Object::New(info.Env()); \
-		napi_wrap(env, dest, instance, CLASS::_finalizeEs5, nullptr, nullptr); \
-		return dest; \
+		napi_wrap(env, info.This(), instance, CLASS::_finalizeEs5, nullptr, nullptr); \
+		return info.Env().Undefined(); \
 	}
 
 
