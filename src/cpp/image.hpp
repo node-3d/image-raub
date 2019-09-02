@@ -30,7 +30,8 @@ typedef Napi::Value (*StaticGetterCallback)(const Napi::CallbackInfo& info);
 typedef void (*StaticSetterCallback)(const Napi::CallbackInfo& info);
 
 #define DECLARE_ES5_CLASS(CLASS, NAME) \
-	static Napi::FunctionReference _constructor; \
+	static Napi::FunctionReference _ctorEs5; \
+	static const char *_nameEs5; \
 	static void CLASS::_finalizeEs5(napi_env e, void *dest, void* hint); \
 	static napi_value CLASS::_createEs5(napi_env e, napi_callback_info i); \
 	inline void super( \
@@ -38,7 +39,7 @@ typedef void (*StaticSetterCallback)(const Napi::CallbackInfo& info);
 		int argc = 0, \
 		const Napi::Value *argv = nullptr \
 	) { \
-		Napi::Function ctor = _constructor.Value(); \
+		Napi::Function ctor = _ctorEs5.Value(); \
 		if (ctor.Has("_super")) { \
 			Napi::Function _super = ctor.Get("_super").As<Napi::Function>(); \
 			std::vector<napi_value> args; \
@@ -52,8 +53,8 @@ typedef void (*StaticSetterCallback)(const Napi::CallbackInfo& info);
 		napi_value __initResult; \
 		napi_create_function(env, #NAME, 0, CLASS::_createEs5, nullptr, &__initResult); \
 		Napi::Function ctor = Napi::Function(env, __initResult); \
-		_constructor = Napi::Persistent(ctor); \
-		_constructor.SuppressDestruct(); \
+		_ctorEs5 = Napi::Persistent(ctor); \
+		_ctorEs5.SuppressDestruct(); \
 		return ctor; \
 	}; \
 	inline static Napi::Function wrap( \
@@ -69,7 +70,7 @@ typedef void (*StaticSetterCallback)(const Napi::CallbackInfo& info);
 		const char *name, \
 		StaticMethodCallback cb \
 	) { \
-		Napi::Function proto = _constructor.Value().Get("prototype").As<Napi::Function>(); \
+		Napi::Function proto = _ctorEs5.Value().Get("prototype").As<Napi::Function>(); \
 		proto.DefineProperty(                                                   \
 			Napi::PropertyDescriptor::Function(proto.Env(), proto, name, cb)   \
 		); \
@@ -78,7 +79,7 @@ typedef void (*StaticSetterCallback)(const Napi::CallbackInfo& info);
 		const char *name, \
 		StaticGetterCallback getter \
 	) { \
-		Napi::Function proto = _constructor.Value().Get("prototype").As<Napi::Function>(); \
+		Napi::Function proto = _ctorEs5.Value().Get("prototype").As<Napi::Function>(); \
 		proto.DefineProperty(                                                   \
 			Napi::PropertyDescriptor::Accessor(proto.Env(), proto, name, getter)   \
 		); \
@@ -88,7 +89,7 @@ typedef void (*StaticSetterCallback)(const Napi::CallbackInfo& info);
 		StaticGetterCallback getter, \
 		StaticSetterCallback setter \
 	) { \
-		Napi::Function proto = _constructor.Value().Get("prototype").As<Napi::Function>(); \
+		Napi::Function proto = _ctorEs5.Value().Get("prototype").As<Napi::Function>(); \
 		proto.DefineProperty(                                                   \
 			Napi::PropertyDescriptor::Accessor( \
 				proto.Env(), \
@@ -100,10 +101,14 @@ typedef void (*StaticSetterCallback)(const Napi::CallbackInfo& info);
 		); \
 	};
 
+#define JS_GET_THAT(CLASS) \
+	CLASS *that; \
+	Napi::Object thatObj = info.This().As<Napi::Object>(); \
+	napi_unwrap(info.Env(), thatObj.Get(_nameEs5), reinterpret_cast<void**>(&that));
+
 #define JS_DECLARE_METHOD(CLASS, NAME) \
 	inline static Napi::Value __st_##NAME(const Napi::CallbackInfo &info) { \
-		CLASS *that; \
-		napi_unwrap(info.Env(), info.This(), reinterpret_cast<void**>(&that)); \
+		JS_GET_THAT(CLASS); \
 		return that->__i_##NAME(info); \
 	}; \
 	Napi::Value __i_##NAME(const Napi::CallbackInfo &info);
@@ -114,8 +119,7 @@ typedef void (*StaticSetterCallback)(const Napi::CallbackInfo& info);
 	inline static void __st_##NAME##Setter( \
 		const Napi::CallbackInfo &info \
 	) { \
-		CLASS *that; \
-		napi_unwrap(info.Env(), info.This(), reinterpret_cast<void**>(&that)); \
+		JS_GET_THAT(CLASS); \
 		that->__i_##NAME(info, info[0]); \
 	}; \
 	void __i_##NAME##Setter(const Napi::CallbackInfo &info, const Napi::Value &value);
@@ -136,7 +140,8 @@ typedef void (*StaticSetterCallback)(const Napi::CallbackInfo& info);
 #define JS_ASSIGN_SETTER(NAME) accessorRw(#NAME, __st_##NAME##Getter, __st_##NAME##Setter)
 
 #define IMPLEMENT_ES5_CLASS(CLASS) \
-	Napi::FunctionReference CLASS::_constructor; \
+	Napi::FunctionReference CLASS::_ctorEs5; \
+	const char *CLASS::_nameEs5 = "CLASS##__TIMESTAMP__"; \
 	void CLASS::_finalizeEs5(napi_env e, void *dest, void* hint) { \
 		CLASS *instance = reinterpret_cast<CLASS*>(dest); \
 		delete instance; \
@@ -144,7 +149,9 @@ typedef void (*StaticSetterCallback)(const Napi::CallbackInfo& info);
 	napi_value CLASS::_createEs5(napi_env env, napi_callback_info i) { \
 		Napi::CallbackInfo info(env, i); \
 		CLASS *instance = new CLASS(info); \
-		napi_wrap(env, info.This(), instance, CLASS::_finalizeEs5, nullptr, nullptr); \
+		Napi::Object wrapObj = Napi::Object::New(env); \
+		info.This().As<Napi::Object>().Set(_nameEs5, wrapObj); \
+		napi_wrap(env, wrapObj, instance, CLASS::_finalizeEs5, nullptr, nullptr); \
 		return info.Env().Undefined(); \
 	}
 

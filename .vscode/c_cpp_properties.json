@@ -7,7 +7,8 @@
                 "${workspaceFolder}/src/node_modules/addon-tools-raub/include",
                 "${workspaceFolder}/src/cpp",
                 "${workspaceFolder}/src/node_modules/node-addon-api",
-                "${workspaceFolder}/src/node_modules/deps-freeimage-raub/include"
+                "${workspaceFolder}/src/node_modules/deps-freeimage-raub/include/**",
+                "E:/_node-3d/image-raub/src/node_modules/deps-freeimage-raub/include"
             ],
             "defines": [
                 "_DEBUG",
