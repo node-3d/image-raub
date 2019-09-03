@@ -1,19 +1,14 @@
 'use strict';
 
-const { inspect } = require('util');
+const { inspect, inherits } = require('util');
 const Emitter = require('events');
 
 const download = require('addon-tools-raub/download');
 
 const { Image } = require('../core');
 
-// class Emitter {
-// 	constructor() { console.log(); }
-// 	on() {}
-// 	once() {}
-// }
-Object.setPrototypeOf(Image.prototype, Emitter.prototype);
-Image._super = Emitter;
+
+inherits(Image, Emitter);
 
 class JsImage extends Image {
 	
@@ -65,13 +60,11 @@ class JsImage extends Image {
 	
 	
 	once(name, cb) {
-		
 		if (name === 'load' && this._data) {
 			cb.call(this);
 		} else {
 			super.once(name, cb);
 		}
-		
 	}
 	
 	
@@ -87,6 +80,7 @@ class JsImage extends Image {
 	get naturalHeight() { return this.height; }
 	
 	get wh() { return [this.width, this.height]; }
+	
 	get size() { const [width, height] = this.wh; return { width, height }; }
 	
 	
@@ -99,45 +93,34 @@ class JsImage extends Image {
 			return;
 		}
 		
-		
 		this._error = null;
 		this._data = null;
 		this._src = v;
 		this._isDataUri = false;
-		
 		
 		// Empty - do nothing
 		if ( ! this._src ) {
 			return this._unload();
 		}
 		
-		
 		// Data URI
 		if (/^data:/.test(this._src)) {
-			
 			this._isDataUri = true;
 			const [head, body] = this._src.split(',');
 			const isBase64 = head.indexOf('base64') > -1;
 			const data = isBase64 ? Buffer.from(body, 'base64') : Buffer.from(unescape(body));
-			console.log('image.js', 'this', this, this._load, this.save, this.width);
 			this._load(data);
 			return;
-			
 		}
-		
 		
 		// Remote image
 		if (/^https?:\/\//i.test(this._src)) {
-			
 			download(this._src).then(
 				data => this._load(data),
 				err => this.emit('error', err)
 			);
-			
 			return;
-			
 		}
-		
 		
 		// Filesystem image
 		require('fs').readFile(this._src, (err, data) => {

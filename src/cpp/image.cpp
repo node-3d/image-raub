@@ -83,21 +83,21 @@ JS_IMPLEMENT_METHOD(Image, _load) { THIS_CHECK;
 	FreeImage_CloseMemory(memStream);
 	
 	// adjust internal fields
-	size_t num_pixels = FreeImage_GetWidth(_bitmap) *
+	size_t pixelCount = FreeImage_GetWidth(_bitmap) *
 		FreeImage_GetHeight(_bitmap);
 	BYTE *pixels = FreeImage_GetBits(_bitmap);
-	int num_bytes = static_cast<int>(num_pixels * 4);
+	int byteCount = static_cast<int>(pixelCount * 4);
 	
 	// FreeImage stores data in BGR. Convert from BGR to RGB.
-	for (size_t i = 0; i < num_pixels; i++) {
+	for (size_t i = 0; i < pixelCount; i++) {
 		size_t i4 = i << 2;
 		BYTE temp = pixels[i4 + 0];
 		pixels[i4 + 0] = pixels[i4 + 2];
 		pixels[i4 + 2] = temp;
 	}
 	
-	Napi::Buffer<uint8_t> buffer = Napi::Buffer<uint8_t>::New(env, num_bytes);
-	memcpy(buffer.Data(), pixels, num_bytes);
+	Napi::Buffer<uint8_t> buffer = Napi::Buffer<uint8_t>::New(env, byteCount);
+	memcpy(buffer.Data(), pixels, byteCount);
 	
 	Napi::Object that = info.This().As<Napi::Object>();
 	that.Set("_data", buffer);
@@ -216,22 +216,22 @@ JS_IMPLEMENT_METHOD(Image, drawImage) { THIS_CHECK;
 	// ---------- TODO: DRY
 	
 	// adjust internal fields
-	size_t num_pixels = FreeImage_GetWidth(_bitmap) * FreeImage_GetHeight(_bitmap);
+	size_t pixelCount = FreeImage_GetWidth(_bitmap) * FreeImage_GetHeight(_bitmap);
 	BYTE *pixels = FreeImage_GetBits(_bitmap);
-	int num_bytes = static_cast<int>(num_pixels * 4);
+	int byteCount = static_cast<int>(pixelCount * 4);
 	
 	// ---------- TODO: UNSURE what happens to BGR above
 	
 	// // FreeImage stores data in BGR. Convert from BGR to RGB.
-	// for (size_t i = 0; i < num_pixels; i++) {
+	// for (size_t i = 0; i < pixelCount; i++) {
 	// 	size_t i4 = i << 2;
 	// 	BYTE temp = pixels[i4 + 0];
 	// 	pixels[i4 + 0] = pixels[i4 + 2];
 	// 	pixels[i4 + 2] = temp;
 	// }
 	
-	Napi::Buffer<uint8_t> buffer = Napi::Buffer<uint8_t>::New(env, num_bytes);
-	memcpy(buffer.Data(), pixels, num_bytes);
+	Napi::Buffer<uint8_t> buffer = Napi::Buffer<uint8_t>::New(env, byteCount);
+	memcpy(buffer.Data(), pixels, byteCount);
 	
 	Napi::Object that = info.This().As<Napi::Object>();
 	that.Set("_data", buffer);
