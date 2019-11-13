@@ -3,7 +3,7 @@
 .lock-wscript
 .DS_Store
 .project
-.DS_Store
+.vscode
 node_modules/
 src/build/
 src/node_modules/
