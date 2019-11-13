@@ -158,7 +158,7 @@ JS_IMPLEMENT_METHOD(Image, save) { THIS_CHECK;
 JS_IMPLEMENT_METHOD(Image, drawImage) { THIS_CHECK;
 	
 	REQ_OBJ_ARG(0, _src);
-	Image *src = Napi::ObjectWrap<Image>::Unwrap(_src);
+	Image *src = unwrap(_src);
 	
 	if ( ! src->_bitmap ) {
 		RET_UNDEFINED;
@@ -242,18 +242,14 @@ JS_IMPLEMENT_METHOD(Image, drawImage) { THIS_CHECK;
 
 
 JS_IMPLEMENT_METHOD(Image, destroy) { THIS_CHECK;
-	
+	emit(info, "destroy");
 	_destroy();
-	
 	RET_UNDEFINED;
-	
 }
 
 
 JS_IMPLEMENT_GETTER(Image, isDestroyed) { NAPI_ENV;
-	
 	RET_BOOL(_isDestroyed);
-	
 }
 
 
