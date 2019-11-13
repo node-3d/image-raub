@@ -18,7 +18,6 @@
 			'cflags!': ['-fno-exceptions'],
 			'cflags_cc!': ['-fno-exceptions'],
 			'library_dirs': ['<(fi_bin)'],
-			'defines': ['NAPI_DISABLE_CPP_EXCEPTIONS'],
 			'conditions': [
 				[
 					'OS=="linux"',
