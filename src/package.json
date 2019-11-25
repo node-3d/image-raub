@@ -6,7 +6,7 @@
 		"build": "node-gyp rebuild && node cpbin"
 	},
 	"dependencies": {
-		"addon-tools-raub": "https://github.com/node-3d/addon-tools-raub",
-		"deps-freeimage-raub": "https://github.com/node-3d/deps-freeimage-raub"
+		"addon-tools-raub": "5.0.0",
+		"deps-freeimage-raub": "2.0.0"
 	}
 }
