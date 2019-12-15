@@ -104,7 +104,7 @@ but optional params `dx, dy` are ignored.
 * `load(Buffer data)` - load from a file in memory.
 * `static fromPixels(uint width, uint height, uint bpp, Buffer pixels)` - create
 image from raw pixels. For example it helps when you want to store the result
-of `glReadPixels()` as image.
+of `glReadPixels()` as an image.
 
 
 ### Events:
