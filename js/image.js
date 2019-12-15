@@ -231,7 +231,7 @@ class JsImage extends Image {
 		// ====== STORE JPEG
 		
 		const img = new Image();
-		img._load(fakeBmp);
+		img._load(fakeBmp, true);
 		
 		return img;
 		

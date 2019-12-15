@@ -1,3 +1,6 @@
+#include <locale>
+#include <codecvt>
+
 #include "image.hpp"
 
 
@@ -35,27 +38,44 @@ Image::~Image() {
 
 
 void Image::_destroy() { DES_CHECK;
-	
 	if (_bitmap) {
 		FreeImage_Unload(_bitmap);
 		_bitmap = nullptr;
 	}
-	
 	_isDestroyed = true;
-	
 }
 
 
 JS_IMPLEMENT_GETTER(Image, width) { THIS_CHECK;
-	
 	RET_NUM(_bitmap ? FreeImage_GetWidth(_bitmap) : 0);
-	
 }
 
 
 JS_IMPLEMENT_GETTER(Image, height) { THIS_CHECK;
-	
 	RET_NUM(_bitmap ? FreeImage_GetHeight(_bitmap) : 0);
+}
+
+
+inline Napi::Buffer<uint8_t> createBuffer(Napi::Env env, FIBITMAP *bmp) {
+	
+	size_t pixelCount = (
+		FreeImage_GetWidth(bmp) * FreeImage_GetHeight(bmp)
+	);
+	size_t byteCount = pixelCount * 4;
+	const BYTE *src = FreeImage_GetBits(bmp);
+	
+	Napi::Buffer<uint8_t> buffer = Napi::Buffer<uint8_t>::New(env, byteCount);
+	uint8_t *dest = buffer.Data();
+	
+	// FreeImage stores data in BGR. Convert from BGR to RGB.
+	for (size_t i = 0; i < pixelCount; i++) {
+		size_t i4 = i << 2;
+		dest[i4 + 0] = src[i4 + 2];
+		dest[i4 + 1] = src[i4 + 1];
+		dest[i4 + 2] = src[i4 + 0];
+	}
+	
+	return buffer;
 	
 }
 
@@ -63,6 +83,7 @@ JS_IMPLEMENT_GETTER(Image, height) { THIS_CHECK;
 JS_IMPLEMENT_METHOD(Image, _load) { THIS_CHECK;
 	
 	REQ_BUF_ARG(0, file);
+	LET_BOOL_ARG(1, swapBytes);
 	
 	BYTE *bufferData = reinterpret_cast<BYTE*>(file.Data());
 	size_t bufferLength = file.Length();
@@ -82,25 +103,23 @@ JS_IMPLEMENT_METHOD(Image, _load) { THIS_CHECK;
 	
 	FreeImage_CloseMemory(memStream);
 	
-	// adjust internal fields
-	size_t pixelCount = FreeImage_GetWidth(_bitmap) *
-		FreeImage_GetHeight(_bitmap);
-	BYTE *pixels = FreeImage_GetBits(_bitmap);
-	int byteCount = static_cast<int>(pixelCount * 4);
-	
-	// FreeImage stores data in BGR. Convert from BGR to RGB.
-	for (size_t i = 0; i < pixelCount; i++) {
-		size_t i4 = i << 2;
-		BYTE temp = pixels[i4 + 0];
-		pixels[i4 + 0] = pixels[i4 + 2];
-		pixels[i4 + 2] = temp;
+	// Swap R-B bytes?
+	if (swapBytes) {
+		size_t pixelCount = (
+			FreeImage_GetWidth(_bitmap) * FreeImage_GetHeight(_bitmap)
+		);
+		BYTE *pixels = FreeImage_GetBits(_bitmap);
+		int byteCount = static_cast<int>(pixelCount * 4);
+		for (size_t i = 0; i < pixelCount; i++) {
+			size_t i4 = i << 2;
+			BYTE temp = pixels[i4 + 0];
+			pixels[i4 + 0] = pixels[i4 + 2];
+			pixels[i4 + 2] = temp;
+		}
 	}
 	
-	Napi::Buffer<uint8_t> buffer = Napi::Buffer<uint8_t>::New(env, byteCount);
-	memcpy(buffer.Data(), pixels, byteCount);
-	
 	Napi::Object that = info.This().As<Napi::Object>();
-	that.Set("_data", buffer);
+	that.Set("_data", createBuffer(env, _bitmap));
 	
 	emit(info, "load");
 	
@@ -128,26 +147,29 @@ JS_IMPLEMENT_METHOD(Image, _unload) { THIS_CHECK;
 
 JS_IMPLEMENT_METHOD(Image, save) { THIS_CHECK;
 	
-	REQ_STR_ARG(0, dest)
+	REQ_STR_ARG(0, dest);
 	
-	FREE_IMAGE_FORMAT format = FreeImage_GetFIFFromFilename(dest.data());
+	FREE_IMAGE_FORMAT format = FreeImage_GetFIFFromFilename(dest.c_str());
 	
 	if ( ! _bitmap ) {
 		RET_BOOL(false);
 	}
 	
-	FIBITMAP *output = _bitmap;
+	FIBITMAP *output = FreeImage_Clone(_bitmap);
+	
 	unsigned bpp = FreeImage_GetBPP(output);
 	
 	if (format == FIF_JPEG && bpp != 24) {
+		FIBITMAP *old = output;
 		output = FreeImage_ConvertTo24Bits(output);
+		FreeImage_Unload(old);
 	}
 	
-	bool ret = FreeImage_Save(format, output, dest.data()) == 1;
+	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+	std::wstring ws = converter.from_bytes(dest);
+	bool ret = FreeImage_SaveU(format, output, ws.c_str()) == 1;
 	
-	if (format == FIF_JPEG && bpp != 24) {
-		FreeImage_Unload(output);
-	}
+	FreeImage_Unload(output);
 	
 	RET_BOOL(ret);
 	
@@ -213,28 +235,8 @@ JS_IMPLEMENT_METHOD(Image, drawImage) { THIS_CHECK;
 	
 	_bitmap = result;
 	
-	// ---------- TODO: DRY
-	
-	// adjust internal fields
-	size_t pixelCount = FreeImage_GetWidth(_bitmap) * FreeImage_GetHeight(_bitmap);
-	BYTE *pixels = FreeImage_GetBits(_bitmap);
-	int byteCount = static_cast<int>(pixelCount * 4);
-	
-	// ---------- TODO: UNSURE what happens to BGR above
-	
-	// // FreeImage stores data in BGR. Convert from BGR to RGB.
-	// for (size_t i = 0; i < pixelCount; i++) {
-	// 	size_t i4 = i << 2;
-	// 	BYTE temp = pixels[i4 + 0];
-	// 	pixels[i4 + 0] = pixels[i4 + 2];
-	// 	pixels[i4 + 2] = temp;
-	// }
-	
-	Napi::Buffer<uint8_t> buffer = Napi::Buffer<uint8_t>::New(env, byteCount);
-	memcpy(buffer.Data(), pixels, byteCount);
-	
 	Napi::Object that = info.This().As<Napi::Object>();
-	that.Set("_data", buffer);
+	that.Set("_data", createBuffer(env, _bitmap));
 	
 	RET_UNDEFINED;
 	
