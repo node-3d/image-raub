@@ -73,6 +73,7 @@ inline Napi::Buffer<uint8_t> createBuffer(Napi::Env env, FIBITMAP *bmp) {
 		dest[i4 + 0] = src[i4 + 2];
 		dest[i4 + 1] = src[i4 + 1];
 		dest[i4 + 2] = src[i4 + 0];
+		dest[i4 + 3] = src[i4 + 3];
 	}
 	
 	return buffer;
