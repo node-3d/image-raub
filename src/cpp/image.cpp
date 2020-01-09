@@ -166,9 +166,13 @@ JS_IMPLEMENT_METHOD(Image, save) { THIS_CHECK;
 		FreeImage_Unload(old);
 	}
 	
+#ifdef _WIN32
 	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 	std::wstring ws = converter.from_bytes(dest);
 	bool ret = FreeImage_SaveU(format, output, ws.c_str()) == 1;
+#else
+	bool ret = FreeImage_Save(format, output, dest.c_str()) == 1;
+#endif
 	
 	FreeImage_Unload(output);
 	
