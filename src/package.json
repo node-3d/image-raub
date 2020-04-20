@@ -6,7 +6,7 @@
 		"build": "node-gyp rebuild && node -e \"require('addon-tools-raub/cpbin')('image')\""
 	},
 	"dependencies": {
-		"addon-tools-raub": "5.0.0",
-		"deps-freeimage-raub": "2.0.0"
+		"addon-tools-raub": "5.1.0",
+		"deps-freeimage-raub": "2.0.1"
 	}
 }
