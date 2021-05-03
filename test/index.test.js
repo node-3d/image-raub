@@ -180,7 +180,7 @@ describe('Image', () => {
 		});
 		
 		expect(data).toBeTruthy();
-		expect(data.length).toBe(TEST_IMAGE_LENGTH);
+		expect(data).toHaveLength(TEST_IMAGE_LENGTH);
 		
 	});
 	

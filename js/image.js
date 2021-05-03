@@ -100,7 +100,8 @@ class JsImage extends Image {
 		
 		// Empty - do nothing
 		if ( ! this._src ) {
-			return this._unload();
+			this._unload();
+			return;
 		}
 		
 		// Data URI
