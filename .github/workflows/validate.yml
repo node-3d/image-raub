@@ -10,8 +10,11 @@ on:
 
 jobs:
   Validate:
+    strategy:
+        matrix:
+          os: [ubuntu-16.04, windows-latest, macos-10.15]
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     steps:
 
