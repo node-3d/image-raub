@@ -110,7 +110,7 @@ JS_IMPLEMENT_METHOD(Image, _load) { THIS_CHECK;
 			FreeImage_GetWidth(_bitmap) * FreeImage_GetHeight(_bitmap)
 		);
 		BYTE *pixels = FreeImage_GetBits(_bitmap);
-		int byteCount = static_cast<int>(pixelCount * 4);
+		
 		for (size_t i = 0; i < pixelCount; i++) {
 			size_t i4 = i << 2;
 			BYTE temp = pixels[i4 + 0];
