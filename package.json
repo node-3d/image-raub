@@ -35,10 +35,8 @@
 		"test-coverage": "rm -rf doc/jest && jest --coverage --silent"
 	},
 	"jest": {
-		"moduleFileExtensions": [
-			"js",
-			"node"
-		],
+		"globalSetup": "<rootDir>/test/setup.js",
+		"testEnvironment": "node",
 		"testMatch": [
 			"**/*.test.js"
 		],
