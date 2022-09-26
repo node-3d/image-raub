@@ -3,17 +3,17 @@ import { EventEmitter } from 'events';
 declare module "image-raub" {
 	namespace image {
 		type TSize = Readonly<{ width: number; height: number }>;
-
+		
 		type TImage = TSize & Readonly<{
 			data: Buffer;
 			noflip?: boolean;
 		}>;
-
+		
 		type TEvent = {
 			type: string;
 			[key: string]: unknown;
 		};
-
+		
 		type TEventCb<T extends TEvent> = (event: T) => (void | boolean);
 		
 		/** Image

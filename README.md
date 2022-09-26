@@ -9,9 +9,6 @@ This is a part of [Node3D](https://github.com/node-3d) project.
 npm i image-raub
 ```
 
-
-## Synopsis
-
 **Node.js** N-API addon implementing the
 [HTMLImageElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/Image).
 

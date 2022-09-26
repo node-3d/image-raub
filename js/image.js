@@ -135,10 +135,10 @@ class JsImage extends Image {
 	
 	
 	get onerror() { return this.listeners('error'); }
-	set onerror(cb) { this.on('error', cb); }
+	set onerror(cb) { cb ? this.on('error', cb) : this.removeAllListeners('error'); }
 	
 	get onload() { return this.listeners('load'); }
-	set onload(cb) { this.on('load', cb); }
+	set onload(cb) { cb ? this.on('load', cb) : this.removeAllListeners('load'); }
 	
 	
 	[inspect.custom]() { return this.toString(); }
