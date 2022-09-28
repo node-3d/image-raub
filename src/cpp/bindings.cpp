@@ -2,11 +2,8 @@
 
 
 Napi::Object init(Napi::Env env, Napi::Object exports) {
-	
 	Image::init(env, exports);
-	
 	return exports;
-	
 }
 
 

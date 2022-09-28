@@ -44,17 +44,17 @@ declare module "image-raub" {
 			/** Image URI: local file / URL / data-uri */
 			src: string;
 			
-			/** Alias for .on('error', cb).
-			 * Setter adds a new callback.
+			/** Similar to .on('error', cb).
+			 * Setter adds a new callback. If passed `null`, removes ALL callbacks.
 			 * Getter returns an Array of currently existing callbacks.
 			*/
-			onerror: TEventCb<TEvent> | ReadonlyArray<TEventCb<TEvent>>;
+			onerror: null | undefined | TEventCb<TEvent> | ReadonlyArray<TEventCb<TEvent>>;
 			
-			/** Alias for .on('load', cb).
-			 * Setter adds a new callback.
+			/** Similar to .on('load', cb).
+			 * Setter adds a new callback. If passed `null`, removes ALL callbacks.
 			 * Getter returns an Array of currently existing callbacks.
 			*/
-			onload: TEventCb<TEvent> | ReadonlyArray<TEventCb<TEvent>>;
+			onload: null | undefined | TEventCb<TEvent> | ReadonlyArray<TEventCb<TEvent>>;
 			
 			/** Emit an event on behalf of this Image. */
 			emit(name: string, event: TEvent): boolean;
@@ -91,6 +91,9 @@ declare module "image-raub" {
 				dWidth: number,
 				dHeight: number,
 			): void;
+			
+			static fromPixels(width: number, height: number, bpp: number, pixels: Buffer): Image;
+			static loadAsync(src: string): Promise<Image>;
 		}
 		
 	}

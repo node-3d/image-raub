@@ -7,7 +7,6 @@
 IMPLEMENT_ES5_CLASS(Image);
 
 void Image::init(Napi::Env env, Napi::Object exports) {
-	
 	Napi::Function ctor = wrap(env);
 	
 	JS_ASSIGN_GETTER(isDestroyed);
@@ -21,7 +20,6 @@ void Image::init(Napi::Env env, Napi::Object exports) {
 	JS_ASSIGN_METHOD(drawImage);
 	
 	exports.Set("Image", ctor);
-	
 }
 
 
@@ -57,7 +55,6 @@ JS_IMPLEMENT_GETTER(Image, height) { THIS_CHECK;
 
 
 inline Napi::Buffer<uint8_t> createBuffer(Napi::Env env, FIBITMAP *bmp) {
-	
 	size_t pixelCount = (
 		FreeImage_GetWidth(bmp) * FreeImage_GetHeight(bmp)
 	);
@@ -77,12 +74,10 @@ inline Napi::Buffer<uint8_t> createBuffer(Napi::Env env, FIBITMAP *bmp) {
 	}
 	
 	return buffer;
-	
 }
 
 
 JS_IMPLEMENT_METHOD(Image, _load) { THIS_CHECK;
-	
 	REQ_BUF_ARG(0, file);
 	LET_BOOL_ARG(1, swapBytes);
 	
@@ -125,12 +120,10 @@ JS_IMPLEMENT_METHOD(Image, _load) { THIS_CHECK;
 	emit(info, "load");
 	
 	RET_UNDEFINED;
-	
 }
 
 
 JS_IMPLEMENT_METHOD(Image, _unload) { THIS_CHECK;
-	
 	if (_bitmap) {
 		FreeImage_Unload(_bitmap);
 		_bitmap = nullptr;
@@ -142,17 +135,15 @@ JS_IMPLEMENT_METHOD(Image, _unload) { THIS_CHECK;
 	emit(info, "load");
 	
 	RET_UNDEFINED;
-	
 }
 
 
 JS_IMPLEMENT_METHOD(Image, save) { THIS_CHECK;
-	
 	REQ_STR_ARG(0, dest);
 	
 	FREE_IMAGE_FORMAT format = FreeImage_GetFIFFromFilename(dest.c_str());
 	
-	if ( ! _bitmap ) {
+	if (!_bitmap) {
 		RET_BOOL(false);
 	}
 	
@@ -177,17 +168,15 @@ JS_IMPLEMENT_METHOD(Image, save) { THIS_CHECK;
 	FreeImage_Unload(output);
 	
 	RET_BOOL(ret);
-	
 }
 
 
 // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage
 JS_IMPLEMENT_METHOD(Image, drawImage) { THIS_CHECK;
-	
 	REQ_OBJ_ARG(0, _src);
 	Image *src = unwrap(_src);
 	
-	if ( ! src->_bitmap ) {
+	if (!src->_bitmap) {
 		RET_UNDEFINED;
 	}
 	
@@ -244,7 +233,6 @@ JS_IMPLEMENT_METHOD(Image, drawImage) { THIS_CHECK;
 	that.Set("_data", createBuffer(env, _bitmap));
 	
 	RET_UNDEFINED;
-	
 }
 
 

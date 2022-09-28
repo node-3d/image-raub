@@ -18,3 +18,9 @@ fiLogo2.on('load', () => console.log('\nData Uri loaded', fiLogo2));
 const fiLogo3 = new Image();
 fiLogo3.src = 'http://freeimage.sourceforge.net/images/logo.jpg';
 fiLogo3.on('load', () => console.log('\nHTTP loaded', fiLogo3));
+
+
+(async () => {
+	var fiLogo4 = await Image.loadAsync('freeimage.jpg');
+	console.log('\nAsync loaded', fiLogo4);
+})();

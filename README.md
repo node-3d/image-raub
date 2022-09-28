@@ -11,6 +11,7 @@ npm i image-raub
 
 **Node.js** N-API addon implementing the
 [HTMLImageElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/Image).
+It is useful for other Node.js addons that operate on decoded images.
 
 > Note: this **addon uses N-API**, and therefore is ABI-compatible across different
 Node.js versions. Addon binaries are precompiled and **there is no compilation**

@@ -15,7 +15,7 @@ public:
 	
 	void _destroy();
 	
- private:
+private:
 	JS_DECLARE_GETTER(Image, isDestroyed);
 	JS_DECLARE_GETTER(Image, width);
 	JS_DECLARE_GETTER(Image, height);
@@ -30,7 +30,6 @@ public:
 	
 	bool _isDestroyed;
 	FIBITMAP *_bitmap;
-	
 };
 
 

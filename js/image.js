@@ -13,7 +13,6 @@ inherits(Image, Emitter);
 class JsImage extends Image {
 	
 	constructor(src) {
-		
 		super();
 		
 		this._src = '';
@@ -29,7 +28,6 @@ class JsImage extends Image {
 		if (typeof src === 'string') {
 			this.src = src;
 		}
-		
 	}
 	
 	
@@ -49,13 +47,11 @@ class JsImage extends Image {
 	
 	
 	on(name, cb) {
-		
 		super.on(name, cb);
 		
 		if (name === 'load' && this._data) {
 			cb.call(this);
 		}
-		
 	}
 	
 	
@@ -87,7 +83,6 @@ class JsImage extends Image {
 	get src() { return this._src; }
 	
 	set src(v) {
-		
 		// The same - do nothing
 		if (v === this._src) {
 			return;
@@ -99,7 +94,7 @@ class JsImage extends Image {
 		this._isDataUri = false;
 		
 		// Empty - do nothing
-		if ( ! this._src ) {
+		if (!this._src) {
 			this._unload();
 			return;
 		}
@@ -130,7 +125,6 @@ class JsImage extends Image {
 			}
 			this._load(data);
 		});
-		
 	}
 	
 	
@@ -144,32 +138,40 @@ class JsImage extends Image {
 	[inspect.custom]() { return this.toString(); }
 	
 	toString() {
-		
-		if ( ! this.src ) {
+		if (!this.src) {
 			return 'Image { EMPTY }';
 		}
 		
 		const src = this._isDataUri ? `${this.src.slice(0, 32)}...` : this.src;
 		
-		if (this._error ) {
+		if (this._error) {
 			return `Image { ERROR, ${src} }`;
 		}
 		
-		if ( ! this._data ) {
+		if (!this._data) {
 			return `Image { LOADING, ${src} }`;
 		}
 		
 		return `Image { ${this.width}x${this.height} ${src} }`;
-		
+	}
+	
+	
+	static async loadAsync(src) {
+		return new Promise((res, rej) => {
+			const img = new JsImage();
+			
+			img.on('load', () => res(img));
+			img.on('error', () => rej);
+			
+			img.src = src;
+		});
 	}
 	
 	
 	static fromPixels(width, height, bpp, pixels) {
-		
 		const memSize = width * height * Math.floor(bpp / 8);
 		
 		// ====== MIMIC BMP
-		
 		// see https://en.wikipedia.org/wiki/BMP_file_format
 		const dibSize = 40;
 		const headerSize = 14 + dibSize;
@@ -178,7 +180,6 @@ class JsImage extends Image {
 		let pos = 0;
 		
 		// ---------- BMP header
-		
 		fakeBmp.write('BM', pos, 2, 'ascii');
 		pos += 2;
 		
@@ -226,18 +227,14 @@ class JsImage extends Image {
 		pos += 4;
 		
 		// ---------- PIXELS
-		
 		pixels.copy(fakeBmp, pos);
 		
 		// ====== STORE JPEG
-		
 		const img = new Image();
 		img._load(fakeBmp, true);
 		
 		return img;
-		
 	}
-	
 }
 
 
