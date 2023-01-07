@@ -19,7 +19,7 @@ class JsImage extends Image {
 		this._isDataUri = false;
 		this._data = null;
 		
-		this.on('error', err => {
+		this.on('error', (err) => {
 			this._data = null;
 			this._error = err;
 			console.error('Image Error:', err);
@@ -112,8 +112,8 @@ class JsImage extends Image {
 		// Remote image
 		if (/^https?:\/\//i.test(this._src)) {
 			download(this._src).then(
-				data => this._load(data),
-				err => this.emit('error', err)
+				(data) => this._load(data),
+				(err) => this.emit('error', err)
 			);
 			return;
 		}

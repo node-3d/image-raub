@@ -28,14 +28,14 @@ describe('Image', () => {
 	});
 	
 	
-	props.forEach(prop => {
+	props.forEach((prop) => {
 		const image = new Image();
 		it(`#${prop} property exposed`, () => {
 			expect(image).toHaveProperty(prop);
 		});
 	});
 	
-	methods.forEach(method => {
+	methods.forEach((method) => {
 		const image = new Image();
 		it(`#${method}() method exposed`, () => {
 			expect(typeof image[method]).toBe('function');
@@ -245,7 +245,7 @@ describe('Image', () => {
 		
 		setSrc(image, '');
 		
-		await new Promise(res => setTimeout(res, 10));
+		await new Promise((res) => setTimeout(res, 10));
 		
 		expect(image.complete).toBe(false);
 		expect(status).toBe('truefalse');
