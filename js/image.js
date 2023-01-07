@@ -3,7 +3,7 @@
 const { inspect, inherits } = require('util');
 const Emitter = require('events');
 
-const download = require('addon-tools-raub/download');
+const { download } = require('addon-tools-raub');
 
 const { Image } = require('../core');
 
