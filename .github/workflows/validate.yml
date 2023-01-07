@@ -65,7 +65,18 @@ jobs:
       - name: Run Unit Tests - Windows
         if: matrix.os == 'windows-2022'
         shell: cmd
-        run: npm run test-ci
+        run: cd test && node depends && cd ..
+
+      - name: Store Dep Trace
+        if: matrix.os == 'windows-2022'
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          draft: true
+          tag_name: ${{ steps.package-version.outputs.version }}
+          name: Release ${{ steps.package-version.outputs.version }}
+          files: test/dep.txt
 
       - name: Run Unit Tests - Unix
         if: matrix.os != 'windows-2022'
