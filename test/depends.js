@@ -4,14 +4,7 @@ const path = require('node:path');
 const util = require('node:util');
 const exec = util.promisify(require('node:child_process').exec);
 
-const {
-	copy,
-} = require('addon-tools-raub');
-
-const fail = (error) => {
-	console.error(error);
-	process.exit(-1);
-};
+const { copy } = require('addon-tools-raub');
 
 
 (async () => {
@@ -24,20 +17,8 @@ const fail = (error) => {
 			console.error(stderr);
 		}
 		
-		// // eslint-disable-next-line no-constant-condition
-		// while (true) {
-		// 	await new Promise((res) => setTimeout(res, 3000));
-		// 	const isFound = await exists('dep.txt');
-			
-		// 	console.log('isFound:', isFound);
-			
-		// 	if (isFound) {
-		// 		break;
-		// 	}
-		// }
-		
 		console.log('-------------------');
 	} catch (error) {
-		fail(error);
+		console.error(error);
 	}
 })();
