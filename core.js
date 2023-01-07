@@ -5,9 +5,9 @@ require('segfault-raub');
 // Add deps dll dirs
 require('deps-freeimage-raub');
 
-const { bin } = require('addon-tools-raub');
+const { getBin } = require('addon-tools-raub');
 
-const core = require(`./${bin}/image`);
+const core = require(`./${getBin()}/image`);
 
 
 module.exports = core;
