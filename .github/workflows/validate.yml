@@ -67,6 +67,10 @@ jobs:
         shell: cmd
         run: cd test && node depends && cd ..
 
+      - name: Run Unit Tests2 - Windows
+        if: matrix.os == 'windows-2022'
+        run: ls test
+
       - name: Store Dep Trace
         if: matrix.os == 'windows-2022'
         uses: softprops/action-gh-release@v1
