@@ -62,25 +62,32 @@ jobs:
       - name: Build Current Binary
         run: npm run build-all
 
+      - name: Add msbuild to PATH
+        if: matrix.os == 'windows-2022'
+        uses: microsoft/setup-msbuild@v1.1
+        with:
+          msbuild-architecture: x64
+
       - name: Run Unit Tests - Windows
         if: matrix.os == 'windows-2022'
         shell: cmd
-        run: cd test && node depends && cd ..
+        run: npm run test-ci
 
-      - name: Run Unit Tests2 - Windows
-        if: matrix.os == 'windows-2022'
-        run: ls test
+      # - name: Run Unit Tests - Windows
+      #   if: matrix.os == 'windows-2022'
+      #   shell: cmd
+      #   run: cd test && node depends && cd ..
 
-      - name: Store Dep Trace
-        if: matrix.os == 'windows-2022'
-        uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          draft: true
-          tag_name: ${{ steps.package-version.outputs.version }}
-          name: Release ${{ steps.package-version.outputs.version }}
-          files: test/dep.txt
+      # - name: Store Dep Trace
+      #   if: matrix.os == 'windows-2022'
+      #   uses: softprops/action-gh-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     draft: true
+      #     tag_name: ${{ steps.package-version.outputs.version }}
+      #     name: Release ${{ steps.package-version.outputs.version }}
+      #     files: test/dep.txt
 
       - name: Run Unit Tests - Unix
         if: matrix.os != 'windows-2022'
