@@ -5,9 +5,7 @@ const util = require('node:util');
 const exec = util.promisify(require('node:child_process').exec);
 
 const { copy } = require('addon-tools-raub');
-
-
-(async () => {
+require('deps-freeimage-raub');(async () => {
 	try {
 		console.log('DEPENDS');
 		await copy(path.resolve('../bin-windows/image.node'), path.resolve('./image.node'));
