@@ -63,11 +63,16 @@ jobs:
       - name: Build Current Binary
         run: npm run build-all
 
-      - name: Add msbuild to PATH
+      # - name: Add msbuild to PATH
+      #   if: matrix.os == 'windows-2022'
+      #   uses: microsoft/setup-msbuild@v1.1
+      #   with:
+      #     msbuild-architecture: x64
+
+      - name: Log libs
         if: matrix.os == 'windows-2022'
-        uses: microsoft/setup-msbuild@v1.1
-        with:
-          msbuild-architecture: x64
+        shell: cmd
+        run: dir c:\Windows\System32\vc*.dll
 
       - name: Run Unit Tests - Windows
         if: matrix.os == 'windows-2022'
