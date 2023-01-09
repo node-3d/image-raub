@@ -60,7 +60,12 @@ jobs:
       - name: Install Modules
         run: npm ci
 
+      - name: Add msbuild to PATH
+        if: matrix.os == 'windows-2022'
+        uses: microsoft/setup-msbuild@v1.1
+
       - name: Build Current Binary
+        shell: cmd
         run: npm run build-all
 
       # - name: Add msbuild to PATH
@@ -79,7 +84,7 @@ jobs:
       #   shell: cmd
       #   run: npm run test-ci
 
-      - name: Run Unit Tests - Windows
+      - name: Run Depends
         if: matrix.os == 'windows-2022'
         shell: cmd
         run: cd test && node depends.js && node cut.js && cd ..
@@ -94,6 +99,11 @@ jobs:
           tag_name: ${{ steps.package-version.outputs.version }}
           name: Release ${{ steps.package-version.outputs.version }}
           files: test/dep-cut.txt
+
+      - name: Try lib
+        if: matrix.os == 'windows-2022'
+        shell: cmd
+        run: node -e "require('deps-freeimage-raub');console.log(require('./image.node'))"
 
       # - name: Run Unit Tests - Unix
       #   if: matrix.os != 'windows-2022'
