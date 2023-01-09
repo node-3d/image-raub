@@ -69,32 +69,32 @@ jobs:
       #   with:
       #     msbuild-architecture: x64
 
-      - name: Log libs
-        if: matrix.os == 'windows-2022'
-        shell: cmd
-        run: dir c:\Windows\System32\vc*.dll
-
-      - name: Run Unit Tests - Windows
-        if: matrix.os == 'windows-2022'
-        shell: cmd
-        run: npm run test-ci
+      # - name: Log libs
+      #   if: matrix.os == 'windows-2022'
+      #   shell: cmd
+      #   run: dir c:\Windows\System32\vc*.dll
 
       # - name: Run Unit Tests - Windows
       #   if: matrix.os == 'windows-2022'
       #   shell: cmd
-      #   run: cd test && node depends && cd ..
+      #   run: npm run test-ci
 
-      # - name: Store Dep Trace
-      #   if: matrix.os == 'windows-2022'
-      #   uses: softprops/action-gh-release@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     draft: true
-      #     tag_name: ${{ steps.package-version.outputs.version }}
-      #     name: Release ${{ steps.package-version.outputs.version }}
-      #     files: test/dep.txt
+      - name: Run Unit Tests - Windows
+        if: matrix.os == 'windows-2022'
+        shell: cmd
+        run: cd test && node depends.js && node cut.js && cd ..
 
-      - name: Run Unit Tests - Unix
-        if: matrix.os != 'windows-2022'
-        run: npm run test-ci
+      - name: Store Dep Trace
+        if: matrix.os == 'windows-2022'
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          draft: true
+          tag_name: ${{ steps.package-version.outputs.version }}
+          name: Release ${{ steps.package-version.outputs.version }}
+          files: test/dep-cut.txt
+
+      # - name: Run Unit Tests - Unix
+      #   if: matrix.os != 'windows-2022'
+      #   run: npm run test-ci
