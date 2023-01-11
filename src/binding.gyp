@@ -43,7 +43,7 @@
 			['OS=="win"', {
 				'libraries': ['FreeImage.lib'],
 				'defines': ['WIN32_LEAN_AND_MEAN', 'VC_EXTRALEAN', '_WIN32', '_HAS_EXCEPTIONS=0'],
-				'msvs_version': '2022',
+				'msvs_version': '2019',
 				'msvs_settings' : {
 					'VCCLCompilerTool' : {
 						'AdditionalOptions' : [

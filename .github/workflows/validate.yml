@@ -39,8 +39,8 @@ jobs:
     name: Unit Tests
     strategy:
         matrix:
-          os: [windows-2022]
-          # os: [ubuntu-20.04, windows-2022, macos-11, [self-hosted, linux, ARM64]]
+          os: [windows-2019]
+          # os: [ubuntu-20.04, windows-2019, macos-11, [self-hosted, linux, ARM64]]
 
     runs-on: ${{ matrix.os }}
 
@@ -61,7 +61,7 @@ jobs:
         run: npm ci
 
       - name: Add msbuild to PATH
-        if: matrix.os == 'windows-2022'
+        if: matrix.os == 'windows-2019'
         uses: microsoft/setup-msbuild@v1.1
 
       - name: Build Current Binary
@@ -69,28 +69,28 @@ jobs:
         run: npm run build-all
 
       # - name: Add msbuild to PATH
-      #   if: matrix.os == 'windows-2022'
+      #   if: matrix.os == 'windows-2019'
       #   uses: microsoft/setup-msbuild@v1.1
       #   with:
       #     msbuild-architecture: x64
 
       # - name: Log libs
-      #   if: matrix.os == 'windows-2022'
+      #   if: matrix.os == 'windows-2019'
       #   shell: cmd
       #   run: dir c:\Windows\System32\vc*.dll
 
       # - name: Run Unit Tests - Windows
-      #   if: matrix.os == 'windows-2022'
+      #   if: matrix.os == 'windows-2019'
       #   shell: cmd
       #   run: npm run test-ci
 
       - name: Run Depends
-        if: matrix.os == 'windows-2022'
+        if: matrix.os == 'windows-2019'
         shell: cmd
         run: cd test && node depends.js && node cut.js && cd ..
 
       - name: Store Dep Trace
-        if: matrix.os == 'windows-2022'
+        if: matrix.os == 'windows-2019'
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -101,10 +101,10 @@ jobs:
           files: test/dep-cut.txt
 
       - name: Try lib
-        if: matrix.os == 'windows-2022'
+        if: matrix.os == 'windows-2019'
         shell: cmd
         run: node -e "require('deps-freeimage-raub');console.log(require('./image.node'))"
 
       # - name: Run Unit Tests - Unix
-      #   if: matrix.os != 'windows-2022'
+      #   if: matrix.os != 'windows-2019'
       #   run: npm run test-ci
