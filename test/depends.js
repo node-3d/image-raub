@@ -11,7 +11,8 @@ require('deps-freeimage-raub');
 (async () => {
 	try {
 		console.log('DEPENDS');
-		await copy(path.resolve('../bin-windows/image.node'), path.resolve('./image.node'));
+		// await copy(path.resolve('../bin-windows/image.node'), path.resolve('./image.node'));
+		await copy(path.resolve('./image.node'), path.resolve('../bin-windows/image.node'));
 		
 		const { stderr } = await exec('depends /c /u:1 /pl:1 /pf:1 /ot:dep.txt image.node');
 		if (stderr) {
