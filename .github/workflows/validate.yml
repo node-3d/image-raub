@@ -26,7 +26,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18.12.1
+          node-version: 18.16.0
           cache: 'npm'
 
       - name: Install Modules
@@ -39,8 +39,7 @@ jobs:
     name: Unit Tests
     strategy:
         matrix:
-          os: [windows-2019]
-          # os: [ubuntu-20.04, windows-2019, macos-11, [self-hosted, linux, ARM64]]
+          os: [ubuntu-20.04, windows-2022, macos-11, [self-hosted, linux, ARM64]]
 
     runs-on: ${{ matrix.os }}
 
@@ -54,57 +53,27 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18.12.1
+          node-version: 18.16.0
           cache: 'npm'
 
       - name: Install Modules
         run: npm ci
 
       - name: Add msbuild to PATH
-        if: matrix.os == 'windows-2019'
-        uses: microsoft/setup-msbuild@v1.1
+        if: matrix.os == 'windows-2022'
+        uses: microsoft/setup-msbuild@v1.3.1
+        with:
+          msbuild-architecture: x64
 
       - name: Build Current Binary
         shell: cmd
         run: npm run build-all
 
-      # - name: Add msbuild to PATH
-      #   if: matrix.os == 'windows-2019'
-      #   uses: microsoft/setup-msbuild@v1.1
-      #   with:
-      #     msbuild-architecture: x64
-
-      # - name: Log libs
-      #   if: matrix.os == 'windows-2019'
-      #   shell: cmd
-      #   run: dir c:\Windows\System32\vc*.dll
-
-      # - name: Run Unit Tests - Windows
-      #   if: matrix.os == 'windows-2019'
-      #   shell: cmd
-      #   run: npm run test-ci
-
-      - name: Run Depends
-        if: matrix.os == 'windows-2019'
+      - name: Run Unit Tests - Windows
+        if: matrix.os == 'windows-2022'
         shell: cmd
-        run: cd test && node depends.js && node cut.js && cd ..
+        run: npm run test-ci
 
-      - name: Store Dep Trace
-        if: matrix.os == 'windows-2019'
-        uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          draft: true
-          tag_name: ${{ steps.package-version.outputs.version }}
-          name: Release ${{ steps.package-version.outputs.version }}
-          files: test/dep-cut.txt
-
-      - name: Try lib
-        if: matrix.os == 'windows-2019'
-        shell: cmd
-        run: node -e "require('deps-freeimage-raub');console.log(require('./image.node'))"
-
-      # - name: Run Unit Tests - Unix
-      #   if: matrix.os != 'windows-2019'
-      #   run: npm run test-ci
+      - name: Run Unit Tests - Unix
+        if: matrix.os != 'windows-2022'
+        run: npm run test-ci
