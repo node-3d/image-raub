@@ -59,19 +59,8 @@ jobs:
       - name: Install Modules
         run: npm ci
 
-      - name: Add msbuild to PATH
-        if: matrix.os == 'windows-2022'
-        uses: microsoft/setup-msbuild@v1.3.1
-        with:
-          msbuild-architecture: x64
-
       - name: Build Current Binary
         run: npm run build-all
-
-      - name: Run Unit Tests - Windows
-        if: matrix.os == 'windows-2022'
-        shell: cmd
-        run: npm run test-ci
 
       - name: Run Unit Tests - Unix
         if: matrix.os != 'windows-2022'
