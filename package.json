@@ -1,7 +1,7 @@
 {
 	"author": "Luis Blanco <luisblanco1337@gmail.com>",
 	"name": "image-raub",
-	"version": "4.1.1",
+	"version": "4.1.2",
 	"description": "Native Image loader for Node.js",
 	"license": "MIT",
 	"main": "index.js",
@@ -29,27 +29,24 @@
 	"scripts": {
 		"postinstall": "node install",
 		"eslint": "eslint .",
-		"build-all": "cd src && node-gyp rebuild -j max --silent && node -e \"require('addon-tools-raub').cpbin('image')\" && cd ..",
+		"build": "cd src && node-gyp rebuild -j max --silent && node -e \"require('addon-tools-raub').cpbin('image')\" && cd ..",
 		"build-only": "cd src && node-gyp build -j max --silent && node -e \"require('addon-tools-raub').cpbin('image')\" && cd ..",
-		"test": "jest --coverage=false --watch --config=conf/jest.json",
-		"test-ci": "jest --ci --runInBand --coverage=false --forceExit --detectOpenHandles --config=conf/jest.json",
-		"test-coverage": "rm -rf doc/jest && jest --coverage --silent --config=conf/jest.json"
+		"test": "node --test --watch .",
+		"test-ci": "node --test"
 	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/node-3d/image-raub.git"
 	},
 	"dependencies": {
-		"addon-tools-raub": "^7.2.0",
-		"deps-freeimage-raub": "^4.1.0",
-		"segfault-raub": "^2.1.0"
+		"addon-tools-raub": "^7.3.0",
+		"deps-freeimage-raub": "^4.1.1",
+		"segfault-raub": "^2.1.2"
 	},
 	"devDependencies": {
-		"eslint-plugin-jest": "^27.2.1",
 		"eslint-plugin-node": "^11.1.0",
-		"eslint": "^8.40.0",
-		"jest": "^29.5.0",
-		"node-addon-api": "^6.1.0",
-		"typescript": "^5.0.4"
+		"eslint": "^8.51.0",
+		"node-addon-api": "^7.0.0",
+		"typescript": "^5.2.2"
 	}
 }

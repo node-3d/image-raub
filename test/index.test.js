@@ -1,5 +1,7 @@
 'use strict';
 
+const assert = require('node:assert').strict;
+const { describe, it } = require('node:test');
 const Image = require('..');
 
 
@@ -20,25 +22,25 @@ const methods = ['on', 'save', 'drawImage'];
 describe('Image', () => {
 	
 	it('exports an object', () => {
-		expect(typeof Image).toBe('function');
+		assert.strictEqual(typeof Image, 'function');
 	});
 	
 	it('can be created', () => {
-		expect(new Image()).toBeInstanceOf(Image);
+		assert.ok((new Image()) instanceof Image);
 	});
 	
 	
 	props.forEach((prop) => {
 		const image = new Image();
 		it(`#${prop} property exposed`, () => {
-			expect(image).toHaveProperty(prop);
+			assert.ok(image[prop] !== undefined);
 		});
 	});
 	
 	methods.forEach((method) => {
 		const image = new Image();
 		it(`#${method}() method exposed`, () => {
-			expect(typeof image[method]).toBe('function');
+			assert.strictEqual(typeof image[method], 'function');
 		});
 	});
 	
@@ -53,7 +55,7 @@ describe('Image', () => {
 			image.src = `${__dirname}/freeimage.jpg`;
 		});
 		
-		expect(loaded).toBe(true);
+		assert.ok(loaded);
 		
 	});
 	
@@ -74,7 +76,7 @@ describe('Image', () => {
 			image.on('error', rej);
 		});
 		
-		expect(loaded).toBe(true);
+		assert.ok(loaded);
 		
 	});
 	
@@ -89,7 +91,7 @@ describe('Image', () => {
 			image.src = `${__dirname}/freeimage.jpg`;
 		});
 		
-		expect(that).toBe(image);
+		assert.strictEqual(that, image);
 		
 	});
 	
@@ -104,7 +106,7 @@ describe('Image', () => {
 			image.addEventListener('error', rej);
 		});
 		
-		expect(that).toBe(image);
+		assert.strictEqual(that, image);
 		
 	});
 	
@@ -119,7 +121,7 @@ describe('Image', () => {
 			image.src = `${__dirname}/freeimage.jpg`;
 		});
 		
-		expect(that).toBe(image);
+		assert.strictEqual(that, image);
 		
 	});
 	
@@ -134,7 +136,7 @@ describe('Image', () => {
 			image.on('error', rej);
 		});
 		
-		expect(that).toBe(image);
+		assert.strictEqual(that, image);
 		
 	});
 	
@@ -149,7 +151,7 @@ describe('Image', () => {
 			image.src = `${__dirname}/freeimage.jpg`;
 		});
 		
-		expect(that).toBe(image);
+		assert.strictEqual(that, image);
 		
 	});
 	
@@ -164,7 +166,7 @@ describe('Image', () => {
 			image.once('error', rej);
 		});
 		
-		expect(that).toBe(image);
+		assert.strictEqual(that, image);
 		
 	});
 	
@@ -179,8 +181,8 @@ describe('Image', () => {
 			image.on('error', rej);
 		});
 		
-		expect(data).toBeTruthy();
-		expect(data).toHaveLength(TEST_IMAGE_LENGTH);
+		assert.ok(!!data);
+		assert.strictEqual(data.length, TEST_IMAGE_LENGTH);
 		
 	});
 	
@@ -195,11 +197,11 @@ describe('Image', () => {
 			image.on('error', rej);
 		});
 		
-		expect(image.width).toBe(TEST_IMAGE_WIDTH);
-		expect(image.naturalWidth).toBe(TEST_IMAGE_WIDTH);
+		assert.strictEqual(image.width, TEST_IMAGE_WIDTH);
+		assert.strictEqual(image.naturalWidth, TEST_IMAGE_WIDTH);
 		
-		expect(image.height).toBe(TEST_IMAGE_HEIGHT);
-		expect(image.naturalHeight).toBe(TEST_IMAGE_HEIGHT);
+		assert.strictEqual(image.height, TEST_IMAGE_HEIGHT);
+		assert.strictEqual(image.naturalHeight, TEST_IMAGE_HEIGHT);
 		
 	});
 	
@@ -208,7 +210,7 @@ describe('Image', () => {
 		
 		const image = new Image();
 		
-		expect(image.complete).toBe(false);
+		assert.strictEqual(image.complete, false);
 		
 	});
 	
@@ -223,7 +225,7 @@ describe('Image', () => {
 			image.on('error', rej);
 		});
 		
-		expect(image.complete).toBe(true);
+		assert.ok(image.complete);
 		
 	});
 	
@@ -241,14 +243,14 @@ describe('Image', () => {
 			image.once('error', rej);
 		});
 		
-		expect(image.complete).toBe(true);
+		assert.ok(image.complete);
 		
 		setSrc(image, '');
 		
 		await new Promise((res) => setTimeout(res, 10));
 		
-		expect(image.complete).toBe(false);
-		expect(status).toBe('truefalse');
+		assert.strictEqual(image.complete, false);
+		assert.strictEqual(status, 'truefalse');
 		
 	});
 	
@@ -270,8 +272,8 @@ describe('Image', () => {
 			0, 0, TEST_STRETCH_WIDTH, TEST_STRETCH_HEIGHT
 		);
 		
-		expect(dest.width).toBe(TEST_STRETCH_WIDTH);
-		expect(dest.height).toBe(TEST_STRETCH_HEIGHT);
+		assert.strictEqual(dest.width, TEST_STRETCH_WIDTH);
+		assert.strictEqual(dest.height, TEST_STRETCH_HEIGHT);
 		
 	});
 	
