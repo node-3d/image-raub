@@ -3,10 +3,11 @@
 This is a part of [Node3D](https://github.com/node-3d) project.
 
 [![NPM](https://badge.fury.io/js/image-raub.svg)](https://badge.fury.io/js/image-raub)
-[![CodeFactor](https://www.codefactor.io/repository/github/node-3d/image-raub/badge)](https://www.codefactor.io/repository/github/node-3d/image-raub)
+[![ESLint](https://github.com/node-3d/image-raub/actions/workflows/eslint.yml/badge.svg)](https://github.com/node-3d/image-raub/actions/workflows/eslint.yml)
+[![Test](https://github.com/node-3d/image-raub/actions/workflows/test.yml/badge.svg)](https://github.com/node-3d/image-raub/actions/workflows/test.yml)
 
 ```
-npm i image-raub
+npm i -s image-raub
 ```
 
 **Node.js** N-API addon implementing the
@@ -53,7 +54,6 @@ const Image = require('image-raub');
 const image = new Image();
 // Web-style onload
 image.onload = () => {
-	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 	gl.bindTexture(gl.TEXTURE_2D, texture);
 	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
