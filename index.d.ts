@@ -1,10 +1,8 @@
-import { EventEmitter } from 'events';
-
 declare module "image-raub" {
 	namespace image {
 		type TSize = Readonly<{ width: number; height: number }>;
 		
-		type TImage = TSize & Readonly<{
+		type TImageData = TSize & Readonly<{
 			data: Buffer;
 			noflip?: boolean;
 		}>;
@@ -16,18 +14,20 @@ declare module "image-raub" {
 		
 		type TEventCb<T extends TEvent> = (event: T) => (void | boolean);
 		
+		type EventEmitter = import('node:events').EventEmitter;
+		
 		/** Image
 		 * It is similar to the web Image.
 		 * Extends EventEmitter to provide event-handling.
 		*/
-		class Image extends EventEmitter {
+		class ImageJs implements EventEmitter {
 			constructor(src?: string | null);
 			
 			/** Is image fully loaded? */
 			readonly complete: boolean;
 			
 			/** Raw image data */
-			readonly data: TImage;
+			readonly data: TImageData;
 			
 			/** An Array, containing width and height. */
 			readonly wh: [number, number];
@@ -81,7 +81,7 @@ declare module "image-raub" {
 			 * @see https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage
 			*/
 			drawImage(
-				image: TImage,
+				image: TImageData,
 				sx: number,
 				sy: number,
 				sWidth: number,
@@ -92,11 +92,29 @@ declare module "image-raub" {
 				dHeight: number,
 			): void;
 			
-			static fromPixels(width: number, height: number, bpp: number, pixels: Buffer): Image;
-			static loadAsync(src: string): Promise<Image>;
+			static fromPixels(width: number, height: number, bpp: number, pixels: Buffer): ImageJs;
+			static loadAsync(src: string): Promise<ImageJs>;
+			
+			// ------ implements EventEmitter
+			
+			addListener(eventName: string | symbol, listener: (...args: any[]) => void): this;
+			on(eventName: string | symbol, listener: (...args: any[]) => void): this;
+			once(eventName: string | symbol, listener: (...args: any[]) => void): this;
+			removeListener(eventName: string | symbol, listener: (...args: any[]) => void): this;
+			off(eventName: string | symbol, listener: (...args: any[]) => void): this;
+			removeAllListeners(event?: string | symbol): this;
+			setMaxListeners(n: number): this;
+			getMaxListeners(): number;
+			listeners(eventName: string | symbol): Function[];
+			rawListeners(eventName: string | symbol): Function[];
+			emit(eventName: string | symbol, ...args: any[]): boolean;
+			listenerCount(eventName: string | symbol, listener?: Function): number;
+			prependListener(eventName: string | symbol, listener: (...args: any[]) => void): this;
+			prependOnceListener(eventName: string | symbol, listener: (...args: any[]) => void): this;
+			eventNames(): Array<string | symbol>;
 		}
 		
 	}
 	
-	export = image;
+	export = image.ImageJs;
 }
