@@ -1,8 +1,8 @@
 'use strict';
 
-const { inspect, inherits } = require('util');
-const Emitter = require('events');
-
+const { resolveObjectURL } = require('node:buffer');
+const { inspect, inherits } = require('node:util');
+const Emitter = require('node:events');
 const { download } = require('addon-tools-raub');
 
 const { Image } = require('../core');
@@ -96,6 +96,17 @@ class JsImage extends Image {
 		// Empty - do nothing
 		if (!this._src) {
 			this._unload();
+			return;
+		}
+		
+		// Object URL
+		if (/^blob:nodedata:/.test(this._src)) {
+			const blob = resolveObjectURL(this._src);
+			(async () => {
+				const arrayBuffer = await blob.arrayBuffer();
+				const buffer = Buffer.from(arrayBuffer);
+				this._load(buffer);
+			})();
 			return;
 		}
 		

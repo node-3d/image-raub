@@ -23,6 +23,7 @@ Load images from:
 * Local file.
 * Data URI.
 * Http(s) URL.
+* Node.js Blob URL.
 * Raw RGBA pixel data
 
 
@@ -40,7 +41,18 @@ Additional features:
 const Image = require('image-raub');
 ```
 
-See [TypeSctipt defenitions](/index.d.ts) for more details.
+See [TypeScript defenitions](/index.d.ts) for more details.
+
+
+### Set window icon
+
+Compatible with [glfw-raub](https://github.com/node-3d/glfw-raub) `window.icon` property.
+
+```js
+const icon = new Image();
+icon.src = __dirname + '/icons/logo.png';
+icon.on('load', () => { window.icon = icon; });
+```
 
 
 ### Load an OpenGL texture
