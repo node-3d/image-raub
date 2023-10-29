@@ -7,4 +7,6 @@ require('deps-freeimage-raub');
 
 const { getBin } = require('addon-tools-raub');
 
-const core = require(`./${getBin()}/image`);module.exports = core;
+const core = require(`./${getBin()}/image`);
+
+module.exports = core;

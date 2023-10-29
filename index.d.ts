@@ -16,7 +16,9 @@ declare module "image-raub" {
 		
 		type EventEmitter = import('node:events').EventEmitter;
 		
-		/** Image
+		/**
+		 * Image
+		 *
 		 * It is similar to the web Image.
 		 * Extends EventEmitter to provide event-handling.
 		*/
@@ -32,6 +34,12 @@ declare module "image-raub" {
 			/** An Array, containing width and height. */
 			readonly wh: [number, number];
 			
+			/** Image width. */
+			readonly width: number;
+			
+			/** Image height. */
+			readonly height: number;
+			
 			/** Alias for width. */
 			readonly naturalWidth: number;
 			
@@ -44,13 +52,17 @@ declare module "image-raub" {
 			/** Image URI: local file / URL / data-uri */
 			src: string;
 			
-			/** Similar to .on('error', cb).
+			/**
+			 * Similar to .on('error', cb).
+			 *
 			 * Setter adds a new callback. If passed `null`, removes ALL callbacks.
 			 * Getter returns an Array of currently existing callbacks.
 			*/
 			onerror: null | undefined | TEventCb<TEvent> | ReadonlyArray<TEventCb<TEvent>>;
 			
-			/** Similar to .on('load', cb).
+			/**
+			 * Similar to .on('load', cb).
+			 *
 			 * Setter adds a new callback. If passed `null`, removes ALL callbacks.
 			 * Getter returns an Array of currently existing callbacks.
 			*/
@@ -59,7 +71,9 @@ declare module "image-raub" {
 			/** Emit an event on behalf of this Image. */
 			emit(name: string, event: TEvent): boolean;
 			
-			/** Add event listener.
+			/**
+			 * Add event listener.
+			 *
 			 * 'error' - something went wrong.
 			 * 'load' - image has been loaded.
 			*/
