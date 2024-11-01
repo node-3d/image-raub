@@ -11,28 +11,25 @@ This is a part of [Node3D](https://github.com/node-3d) project.
 npm i -s image-raub
 ```
 
-**Node.js** N-API addon implementing the
-[HTMLImageElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/Image).
-It is useful for other Node.js addons that operate on decoded images.
-
-> Note: this **addon uses N-API**, and therefore is ABI-compatible across different
-Node.js versions. Addon binaries are precompiled and **there is no compilation**
-step during the `npm i` command.
-
-Load images from:
+Using [FreeImage](http://freeimage.sourceforge.net/), this addon loads images from:
 * Local file.
 * Data URI.
 * Http(s) URL.
 * Node.js Blob URL.
-* Raw RGBA pixel data
+* Raw RGBA pixel data.
 
-
-[FreeImage](http://freeimage.sourceforge.net/) is used as back-end.
+The Image class is similar to
+[HTMLImageElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/Image),
+and can be used as a replacement in non-DOM environments.
 
 Additional features:
 * `save` - saves the image to a local file.
 * `drawImage` - is similar to
 	[drawImage](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage).
+
+> Note: this **addon uses N-API**, and therefore is ABI-compatible across different
+Node.js versions. Addon binaries are precompiled and **there is no compilation**
+step during the `npm i` command.
 
 
 ## Image
