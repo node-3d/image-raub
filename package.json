@@ -39,7 +39,7 @@
 		"url": "https://github.com/node-3d/image-raub.git"
 	},
 	"dependencies": {
-		"addon-tools-raub": "^9.0.0",
+		"addon-tools-raub": "^9.1.0",
 		"deps-freeimage-raub": "^6.0.0",
 		"segfault-raub": "^3.0.1"
 	},
