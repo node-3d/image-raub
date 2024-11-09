@@ -241,7 +241,7 @@ class JsImage extends Image {
 		pixels.copy(fakeBmp, pos);
 		
 		// ====== STORE JPEG
-		const img = new Image();
+		const img = new JsImage();
 		img._load(fakeBmp, true);
 		
 		return img;
