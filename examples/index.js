@@ -21,6 +21,6 @@ fiLogo3.on('load', () => console.log('\nHTTP loaded', fiLogo3));
 
 
 (async () => {
-	var fiLogo4 = await Image.loadAsync('freeimage.jpg');
+	const fiLogo4 = await Image.loadAsync('freeimage.jpg');
 	console.log('\nAsync loaded', fiLogo4);
 })();

@@ -130,7 +130,7 @@ class JsImage extends Image {
 		}
 		
 		// Filesystem image
-		require('fs').readFile(this._src, (err, data) => {
+		require('node:fs').readFile(this._src, (err, data) => {
 			if (err) {
 				return this.emit('error', err);
 			}
