@@ -1,8 +1,10 @@
-#include <locale>
-#include <codecvt>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 #include "image.hpp"
 
+constexpr int NAME_SIZE_MAX = 1024;
 
 IMPLEMENT_ES5_CLASS(Image);
 
@@ -55,9 +57,7 @@ JS_IMPLEMENT_GETTER(Image, height) { THIS_CHECK;
 
 
 inline Napi::Buffer<uint8_t> createBuffer(Napi::Env env, FIBITMAP *bmp) {
-	size_t pixelCount = (
-		FreeImage_GetWidth(bmp) * FreeImage_GetHeight(bmp)
-	);
+	size_t pixelCount = FreeImage_GetWidth(bmp) * FreeImage_GetHeight(bmp);
 	size_t byteCount = pixelCount * 4;
 	const BYTE *src = FreeImage_GetBits(bmp);
 	
@@ -158,9 +158,14 @@ JS_IMPLEMENT_METHOD(Image, save) { THIS_CHECK;
 	}
 	
 #ifdef _WIN32
-	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-	std::wstring ws = converter.from_bytes(dest);
-	bool ret = FreeImage_SaveU(format, output, ws.c_str()) == 1;
+	int wcharCount = MultiByteToWideChar(CP_UTF8 , 0 , dest.c_str() , -1, NULL , 0);
+	if (wcharCount + 1 > NAME_SIZE_MAX) {
+		RET_BOOL(false);
+	}
+	
+	wchar_t wstr[NAME_SIZE_MAX];
+	MultiByteToWideChar(CP_UTF8 , 0 , dest.c_str() , -1, wstr , wcharCount);
+	bool ret = FreeImage_SaveU(format, output, wstr) == 1;
 #else
 	bool ret = FreeImage_Save(format, output, dest.c_str()) == 1;
 #endif

@@ -1,8 +1,5 @@
-'use strict';
-
-const Image = require('../');
-
-const dataUri = require('./data-uri')[0];
+import Image from '../index.js';
+import { dataUri } from './data-uri.mjs';
 
 
 const fiLogo = new Image();
@@ -16,7 +13,7 @@ fiLogo2.on('load', () => console.log('\nData Uri loaded', fiLogo2));
 
 
 const fiLogo3 = new Image();
-fiLogo3.src = 'http://freeimage.sourceforge.net/images/logo.jpg';
+fiLogo3.src = 'https://raw.githubusercontent.com/node-3d/node-3d/master/logo/front/logo.png';
 fiLogo3.on('load', () => console.log('\nHTTP loaded', fiLogo3));
 
 

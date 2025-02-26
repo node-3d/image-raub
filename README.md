@@ -35,10 +35,19 @@ step during the `npm i` command.
 ## Image
 
 ```js
-const Image = require('image-raub');
+import Image from 'image-raub';
+const image = new Image('images/test.png'); // relative to CWD
+icon.on('load', () => { console.log('data', image.width, image.height, image.data); });
 ```
 
-See [TypeScript defenitions](/index.d.ts) for more details.
+For loaded images, `image.data` will contain a `Buffer` of `4 * width * height` bytes.
+You can directly interact with that buffer - read or write, and then save the image
+to a file or use it any other way.
+
+With `Image.fromPixels()` it is possible to generate new images from scratch by providing
+your own data buffer.
+
+See [TS declarations](/index.d.ts) for more details.
 
 
 ### Set window icon
@@ -47,7 +56,7 @@ Compatible with [glfw-raub](https://github.com/node-3d/glfw-raub) `window.icon` 
 
 ```js
 const icon = new Image();
-icon.src = __dirname + '/icons/logo.png';
+icon.src = 'icons/logo.png';
 icon.on('load', () => { window.icon = icon; });
 ```
 
@@ -72,7 +81,7 @@ image.onload = () => {
 	gl.bindTexture(gl.TEXTURE_2D, null);
 };
 
-image.src = `${__dirname}/texture.jpg`;
+image.src = 'textures/grass.jpg';
 ```
 
 

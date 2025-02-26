@@ -1,5 +1,4 @@
-#ifndef _IMAGE_HPP_
-#define _IMAGE_HPP_
+#pragma once
 
 #include <FreeImage.h>
 
@@ -31,6 +30,3 @@ private:
 	bool _isDestroyed;
 	FIBITMAP *_bitmap;
 };
-
-
-#endif // _IMAGE_HPP_
