@@ -18,9 +18,20 @@ const props = [
 
 const methods = ['on', 'save', 'drawImage'];
 
+const loadImageAsync = async (name) => {
+	const image = new Image();
+	image.src = `${__dirname}/${name}`;
+	
+	await new Promise((res, rej) => {
+		image.on('load', () => res());
+		image.on('error', rej);
+	});
+	
+	return image;
+};
+
 
 describe('Image', () => {
-	
 	it('exports an object', () => {
 		assert.strictEqual(typeof Image, 'function');
 	});
@@ -46,7 +57,6 @@ describe('Image', () => {
 	
 	
 	it('emits "load" for the early listener', async () => {
-		
 		const image = new Image();
 		
 		const loaded = await new Promise((res, rej) => {
@@ -56,20 +66,11 @@ describe('Image', () => {
 		});
 		
 		assert.ok(loaded);
-		
 	});
 	
 	
 	it('emits "load" for the late listener', async () => {
-		
-		const image = new Image();
-		image.src = `${__dirname}/freeimage.jpg`;
-		
-		// Async barrier
-		await new Promise((res, rej) => {
-			image.on('load', () => res(true));
-			image.on('error', rej);
-		});
+		const image = await loadImageAsync('freeimage.jpg');
 		
 		const loaded = await new Promise((res, rej) => {
 			image.on('load', () => res(true));
@@ -77,12 +78,10 @@ describe('Image', () => {
 		});
 		
 		assert.ok(loaded);
-		
 	});
 	
 	
 	it('early #addEventListener() calls back with the correct scope', async () => {
-		
 		const image = new Image();
 		
 		const that = await new Promise((res, rej) => {
@@ -92,14 +91,11 @@ describe('Image', () => {
 		});
 		
 		assert.strictEqual(that, image);
-		
 	});
 	
 	
 	it('late #addEventListener() calls back with the correct scope', async () => {
-		
-		const image = new Image();
-		image.src = `${__dirname}/freeimage.jpg`;
+		const image = await loadImageAsync('freeimage.jpg');
 		
 		const that = await new Promise((res, rej) => {
 			image.addEventListener('load', function () { res(this); });
@@ -107,12 +103,10 @@ describe('Image', () => {
 		});
 		
 		assert.strictEqual(that, image);
-		
 	});
 	
 	
 	it('early #on() calls back with the correct scope', async () => {
-		
 		const image = new Image();
 		
 		const that = await new Promise((res, rej) => {
@@ -122,14 +116,11 @@ describe('Image', () => {
 		});
 		
 		assert.strictEqual(that, image);
-		
 	});
 	
 	
 	it('late #on() calls back with the correct scope', async () => {
-		
-		const image = new Image();
-		image.src = `${__dirname}/freeimage.jpg`;
+		const image = await loadImageAsync('freeimage.jpg');
 		
 		const that = await new Promise((res, rej) => {
 			image.on('load', function () { res(this); });
@@ -137,12 +128,10 @@ describe('Image', () => {
 		});
 		
 		assert.strictEqual(that, image);
-		
 	});
 	
 	
 	it('early #once() calls back with the correct scope', async () => {
-		
 		const image = new Image();
 		
 		const that = await new Promise((res, rej) => {
@@ -152,14 +141,11 @@ describe('Image', () => {
 		});
 		
 		assert.strictEqual(that, image);
-		
 	});
 	
 	
 	it('late #once() calls back with the correct scope', async () => {
-		
-		const image = new Image();
-		image.src = `${__dirname}/freeimage.jpg`;
+		const image = await loadImageAsync('freeimage.jpg');
 		
 		const that = await new Promise((res, rej) => {
 			image.once('load', function () { res(this); });
@@ -167,103 +153,71 @@ describe('Image', () => {
 		});
 		
 		assert.strictEqual(that, image);
-		
 	});
 	
+	it('has accessible JPG data', async () => {
+		const image = await loadImageAsync('freeimage.jpg');
+		
+		assert.ok(!!image.data);
+		assert.strictEqual(image.data.length, TEST_IMAGE_LENGTH);
+	});
 	
-	it('has accessible data', async () => {
+	it('has accessible PNG data', async () => {
+		const image = await loadImageAsync('freeimage.png');
 		
-		const image = new Image();
-		image.src = `${__dirname}/freeimage.jpg`;
+		assert.ok(!!image.data);
+		assert.strictEqual(image.data.length, TEST_IMAGE_LENGTH);
+	});
+	
+	it('has accessible GIF data', async () => {
+		const image = await loadImageAsync('freeimage.gif');
 		
-		const data = await new Promise((res, rej) => {
-			image.on('load', () => res(image.data));
-			image.on('error', rej);
-		});
-		
-		assert.ok(!!data);
-		assert.strictEqual(data.length, TEST_IMAGE_LENGTH);
-		
+		assert.ok(!!image.data);
+		assert.strictEqual(image.data.length, TEST_IMAGE_LENGTH);
 	});
 	
 	
 	it('has correct dimensions', async () => {
-		
-		const image = new Image();
-		image.src = `${__dirname}/freeimage.jpg`;
-		
-		await new Promise((res, rej) => {
-			image.on('load', res);
-			image.on('error', rej);
-		});
+		const image = await loadImageAsync('freeimage.jpg');
 		
 		assert.strictEqual(image.width, TEST_IMAGE_WIDTH);
 		assert.strictEqual(image.naturalWidth, TEST_IMAGE_WIDTH);
 		
 		assert.strictEqual(image.height, TEST_IMAGE_HEIGHT);
 		assert.strictEqual(image.naturalHeight, TEST_IMAGE_HEIGHT);
-		
 	});
 	
 	
 	it('has correct `complete` when empty', async () => {
-		
 		const image = new Image();
-		
 		assert.strictEqual(image.complete, false);
-		
 	});
 	
 	
 	it('has correct `complete` when loaded', async () => {
-		
-		const image = new Image();
-		image.src = `${__dirname}/freeimage.jpg`;
-		
-		await new Promise((res, rej) => {
-			image.on('load', res);
-			image.on('error', rej);
-		});
-		
+		const image = await loadImageAsync('freeimage.jpg');
 		assert.ok(image.complete);
-		
 	});
 	
-	const setSrc = (image, src) => { image.src = src; };
+	
 	it('has correct `complete` after dropping `src`', async () => {
-		
-		const image = new Image();
-		setSrc(image, `${__dirname}/freeimage.jpg`);
+		const image = await loadImageAsync('freeimage.jpg');
 		
 		let status = '';
 		image.on('load', () => status += image.complete);
 		
-		await new Promise((res, rej) => {
-			image.once('load', res);
-			image.once('error', rej);
-		});
-		
 		assert.ok(image.complete);
 		
-		setSrc(image, '');
-		
+		image.src = '';
 		await new Promise((res) => setTimeout(res, 10));
 		
-		assert.strictEqual(image.complete, false);
+		assert.ok(!image.complete);
 		assert.strictEqual(status, 'truefalse');
-		
 	});
 	
 	
 	it('can draw a stretched image', async () => {
-		
-		const src = new Image();
-		src.src = `${__dirname}/freeimage.jpg`;
-		
-		await new Promise((res, rej) => {
-			src.once('load', res);
-			src.once('error', rej);
-		});
+		const src = await loadImageAsync('freeimage.jpg');
 		
 		const dest = new Image();
 		dest.drawImage(
@@ -274,7 +228,5 @@ describe('Image', () => {
 		
 		assert.strictEqual(dest.width, TEST_STRETCH_WIDTH);
 		assert.strictEqual(dest.height, TEST_STRETCH_HEIGHT);
-		
 	});
-	
 });
