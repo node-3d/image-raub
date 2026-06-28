@@ -85,19 +85,39 @@ JS_IMPLEMENT_METHOD(Image, _load) { THIS_CHECK;
 	size_t bufferLength = file.Length();
 	
 	FIMEMORY *memStream = FreeImage_OpenMemory(bufferData, bufferLength);
+	if (!memStream) {
+		emitError(info, "Failed to open image data");
+		RET_UNDEFINED;
+	}
 	
 	FREE_IMAGE_FORMAT format = FreeImage_GetFileTypeFromMemory(memStream, bufferLength);
+	if (format == FIF_UNKNOWN) {
+		FreeImage_CloseMemory(memStream);
+		emitError(info, "Unknown image format");
+		RET_UNDEFINED;
+	}
+	
 	FIBITMAP *tmpBitmap = FreeImage_LoadFromMemory(format, memStream);
+	if (!tmpBitmap) {
+		FreeImage_CloseMemory(memStream);
+		emitError(info, "Failed to load image");
+		RET_UNDEFINED;
+	}
+	
+	FIBITMAP *newBitmap = FreeImage_ConvertTo32Bits(tmpBitmap);
+	FreeImage_Unload(tmpBitmap);
+	FreeImage_CloseMemory(memStream);
+	
+	if (!newBitmap) {
+		emitError(info, "Failed to convert image to 32-bit RGBA");
+		RET_UNDEFINED;
+	}
 	
 	if (_bitmap) {
 		FreeImage_Unload(_bitmap);
 	}
 	
-	_bitmap = FreeImage_ConvertTo32Bits(tmpBitmap);
-	
-	FreeImage_Unload(tmpBitmap);
-	
-	FreeImage_CloseMemory(memStream);
+	_bitmap = newBitmap;
 	
 	// Swap R-B bytes?
 	if (swapBytes) {
@@ -148,6 +168,9 @@ JS_IMPLEMENT_METHOD(Image, save) { THIS_CHECK;
 	}
 	
 	FIBITMAP *output = FreeImage_Clone(_bitmap);
+	if (!output) {
+		RET_BOOL(false);
+	}
 	
 	unsigned bpp = FreeImage_GetBPP(output);
 	
@@ -159,7 +182,7 @@ JS_IMPLEMENT_METHOD(Image, save) { THIS_CHECK;
 	
 #ifdef _WIN32
 	int wcharCount = MultiByteToWideChar(CP_UTF8 , 0 , dest.c_str() , -1, NULL , 0);
-	if (wcharCount + 1 > NAME_SIZE_MAX) {
+	if (wcharCount <= 0 || wcharCount > NAME_SIZE_MAX) {
 		RET_BOOL(false);
 	}
 	
@@ -181,7 +204,7 @@ JS_IMPLEMENT_METHOD(Image, drawImage) { THIS_CHECK;
 	REQ_OBJ_ARG(0, _src);
 	Image *src = unwrap(_src);
 	
-	if (!src->_bitmap) {
+	if (!src || !src->_bitmap) {
 		RET_UNDEFINED;
 	}
 	
@@ -227,6 +250,10 @@ JS_IMPLEMENT_METHOD(Image, drawImage) { THIS_CHECK;
 	FIBITMAP *result = FreeImage_RescaleRect(
 		src->_bitmap, dWidth, dHeight, sx, sy, sx + sWidth, sy + sHeight
 	);
+	if (!result) {
+		emitError(info, "Failed to rescale image");
+		RET_UNDEFINED;
+	}
 	
 	if (_bitmap) {
 		FreeImage_Unload(_bitmap);
@@ -255,4 +282,11 @@ JS_IMPLEMENT_GETTER(Image, isDestroyed) { NAPI_ENV;
 
 void Image::emit(const Napi::CallbackInfo& info, const char* name) {
 	eventEmit(info.This().As<Napi::Object>(), name);
+}
+
+
+void Image::emitError(const Napi::CallbackInfo& info, const char* message) {
+	Napi::Env env = info.Env();
+	Napi::Value argv[] = { Napi::Error::New(env, message).Value() };
+	eventEmit(info.This().As<Napi::Object>(), "error", 1, argv);
 }

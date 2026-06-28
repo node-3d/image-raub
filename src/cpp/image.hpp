@@ -26,6 +26,7 @@ private:
 	JS_DECLARE_METHOD(Image, drawImage);
 	
 	void emit(const Napi::CallbackInfo& info, const char* name);
+	void emitError(const Napi::CallbackInfo& info, const char* message);
 	
 	bool _isDestroyed;
 	FIBITMAP *_bitmap;

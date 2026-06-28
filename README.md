@@ -2,13 +2,13 @@
 
 This is a part of [Node3D](https://github.com/node-3d) project.
 
-[![NPM](https://badge.fury.io/js/image-raub.svg)](https://badge.fury.io/js/image-raub)
-[![ESLint](https://github.com/node-3d/image-raub/actions/workflows/eslint.yml/badge.svg)](https://github.com/node-3d/image-raub/actions/workflows/eslint.yml)
-[![Test](https://github.com/node-3d/image-raub/actions/workflows/test.yml/badge.svg)](https://github.com/node-3d/image-raub/actions/workflows/test.yml)
-[![Cpplint](https://github.com/node-3d/image-raub/actions/workflows/cpplint.yml/badge.svg)](https://github.com/node-3d/image-raub/actions/workflows/cpplint.yml)
+[![NPM](https://badge.fury.io/js/%40node-3d%2Fimage.svg)](https://badge.fury.io/js/@node-3d/image)
+[![Lint](https://github.com/node-3d/image/actions/workflows/lint.yml/badge.svg)](https://github.com/node-3d/image/actions/workflows/lint.yml)
+[![Test](https://github.com/node-3d/image/actions/workflows/test.yml/badge.svg)](https://github.com/node-3d/image/actions/workflows/test.yml)
+[![Cpplint](https://github.com/node-3d/image/actions/workflows/cpplint.yml/badge.svg)](https://github.com/node-3d/image/actions/workflows/cpplint.yml)
 
 ```console
-npm i -s image-raub
+npm install @node-3d/image
 ```
 
 Using [FreeImage](http://freeimage.sourceforge.net/), this addon loads images from:
@@ -29,15 +29,15 @@ Additional features:
 
 > Note: this **addon uses N-API**, and therefore is ABI-compatible across different
 Node.js versions. Addon binaries are precompiled and **there is no compilation**
-step during the `npm i` command.
+step during the `npm install` command.
 
 
 ## Image
 
 ```js
-import Image from 'image-raub';
+import { Image } from '@node-3d/image';
 const image = new Image('images/test.png'); // relative to CWD
-icon.on('load', () => { console.log('data', image.width, image.height, image.data); });
+image.on('load', () => { console.log('data', image.width, image.height, image.data); });
 ```
 
 For loaded images, `image.data` will contain a `Buffer` of `4 * width * height` bytes.
@@ -47,12 +47,10 @@ to a file or use it any other way.
 With `Image.fromPixels()` it is possible to generate new images from scratch by providing
 your own data buffer.
 
-See [TS declarations](/index.d.ts) for more details.
-
 
 ### Set window icon
 
-Compatible with [glfw-raub](https://github.com/node-3d/glfw-raub) `window.icon` property.
+Compatible with [@node-3d/glfw](https://github.com/node-3d/glfw) `window.icon` property.
 
 ```js
 const icon = new Image();
@@ -69,7 +67,7 @@ available as a `Buffer`, containing the whole pixel data, and `image.width`/`ima
 contain the dimensions.
 
 ```js
-const Image = require('image-raub');
+import { Image } from '@node-3d/image';
 const image = new Image();
 // Web-style onload
 image.onload = () => {
@@ -106,4 +104,3 @@ const img = Image.fromPixels(screen.w, screen.h, 32, storage.data);
 
 img.save(`${Date.now()}.jpg`);
 ```
-
